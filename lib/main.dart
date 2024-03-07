@@ -11,6 +11,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chat App',
+      //initialRoute: '/',
+      routes: {
+        '/HomeRoute': (context) => Homepage(),
+        '/LoginRoute':(context) => LoginPage(),
+        //'/':(context) => LoginPage(),
+      },
       debugShowCheckedModeBanner: false,
       home: LoginPage(),
       //home: Homepage(),

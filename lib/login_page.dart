@@ -1,4 +1,6 @@
+import 'package:chat/components/components.dart';
 import 'package:flutter/material.dart';
+import 'homepage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -15,50 +17,59 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Mobile Number Input
-            TextField(
-              controller: mobileController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: 'Enter Mobile Number',
-              ),
-            ),
-            SizedBox(height: 20.0),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+          child: Container(
+            width: MediaQuery.of(context).size.width * .5,
+            height: MediaQuery.of(context).size.width * .667,
+            decoration: BoxDecoration(
+                border: Border.all(), borderRadius: BorderRadius.circular(20)),
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Mobile Number Input
+                TextField(
+                  controller: mobileController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: 'Enter Mobile Number',
+                  ),
+                ),
+                SizedBox(height: 20.0),
 
-            // Send OTP Button
-            ElevatedButton(
-              onPressed: () {
-                if (validateMobileNumber()) {
-                  sendOTP();
-                }
-              },
-              child: Text('Send OTP'),
-            ),
-            SizedBox(height: 20.0),
+                // Send OTP Button
+                ElevatedButton(
+                  onPressed: () {
+                    if (validateMobileNumber()) {
+                      sendOTP();
+                    }
+                  },
+                  child: Text('Send OTP'),
+                ),
+                SizedBox(height: 20.0),
 
-            // OTP Input
-            TextField(
-              controller: otpController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Enter OTP',
-              ),
-            ),
-            SizedBox(height: 20.0),
+                // OTP Input
+                TextField(
+                  controller: otpController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Enter OTP',
+                  ),
+                ),
+                SizedBox(height: 20.0),
 
-            // Verify OTP Button
-            ElevatedButton(
-              onPressed: () {
-                verifyOTP();
-              },
-              child: Text('Verify OTP'),
+                // Verify OTP Button
+                ElevatedButton(
+                  onPressed: () {
+                    verifyOTP();
+                  },
+                  child: Text('Verify OTP'),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -67,46 +78,35 @@ class _LoginPageState extends State<LoginPage> {
   bool validateMobileNumber() {
     String mobileNumber = mobileController.text.trim();
     if (mobileNumber.isEmpty || mobileNumber.length != 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Invalid mobile number. Please enter a 10-digit number.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showSnackBar(context,
+          "Invalid mobile number. Please enter a 10-digit number.", Colors.red);
       return false;
     }
     return true;
   }
 
   void sendOTP() {
-    // Replace this with your actual OTP sending logic
     setState(() {
       otpSent = true;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('OTP sent successfully'),
-        backgroundColor: Colors.red,
-      ),
-    );
+    showSnackBar(context, "OTP sent successfully", Colors.green);
   }
 
   void verifyOTP() {
     if (otpController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please enter the OTP'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } else {
-      // Add logic for successful OTP verification
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('OTP verified successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      showSnackBar(context, 'Please enter the OTP', Colors.red);
+    }
+    // else if(otpController.text!=generatedOtp){
+    //   showsnackBar(context,'Invalid OTP',Colors.red);
+    // }
+    else {
+      showSnackBar(context, 'OTP verified successfully', Colors.green);
+      //Navigator.of(context).pop();
+      // Navigator.pushNamedAndRemoveUntil(context,'HomeRoute',
+      //       (_) => false,
+      //       // ModalRoute.withName('/')
+      // );
+      Navigator.pushNamed(context, '/HomeRoute');
     }
   }
 }
