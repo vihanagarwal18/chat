@@ -10,8 +10,20 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.red,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Lenk",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white, // arrow vagra ka colour
+      ),
+      body: Container(
+
+      ),
     );
   }
 }

@@ -10,10 +10,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController mobileController = TextEditingController();
-  TextEditingController otpController = TextEditingController();
-  bool otpSent = false;
-
+  TextEditingController mailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,40 +20,30 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
           child: Container(
             width: MediaQuery.of(context).size.width * .5,
-            height: MediaQuery.of(context).size.width * .667,
+            height: MediaQuery.of(context).size.height * .5,
             decoration: BoxDecoration(
                 border: Border.all(), borderRadius: BorderRadius.circular(20)),
             padding: EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Mobile Number Input
                 TextField(
-                  controller: mobileController,
-                  keyboardType: TextInputType.phone,
+                  controller: mailController,
+                  //keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
-                    labelText: 'Enter Mobile Number',
+                    labelText: 'Enter Your Email ID',
                   ),
                 ),
                 SizedBox(height: 20.0),
-
-                // Send OTP Button
-                ElevatedButton(
-                  onPressed: () {
-                    if (validateMobileNumber()) {
-                      sendOTP();
-                    }
-                  },
-                  child: Text('Send OTP'),
-                ),
-                SizedBox(height: 20.0),
-
-                // OTP Input
+                // Password Input
                 TextField(
-                  controller: otpController,
+                  maxLength: 10,
+                  obscureText: true,
+                  //obscuringCharacter: '\$',
+                  controller: passwordController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Enter OTP',
+                    labelText: 'Enter Password',
                   ),
                 ),
                 SizedBox(height: 20.0),
@@ -63,9 +51,19 @@ class _LoginPageState extends State<LoginPage> {
                 // Verify OTP Button
                 ElevatedButton(
                   onPressed: () {
-                    verifyOTP();
+                    submit_login();
                   },
-                  child: Text('Verify OTP'),
+                  child: Text('Submit'),
+                ),
+                SizedBox(height: 20.0),
+                ElevatedButton(
+                    onPressed: (){
+                        //Navigator.of(context).pop();
+                        Navigator.pushNamedAndRemoveUntil(context,'/RegisterRoute',
+                              (_) => false,
+                        );
+                    },
+                    child: Text('For Registeration'),
                 ),
               ],
             ),
@@ -74,39 +72,22 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
-  bool validateMobileNumber() {
-    String mobileNumber = mobileController.text.trim();
-    if (mobileNumber.isEmpty || mobileNumber.length != 10) {
-      showSnackBar(context,
-          "Invalid mobile number. Please enter a 10-digit number.", Colors.red);
-      return false;
+  void submit_login(){
+    String mailid=mailController.text;
+    String password=passwordController.text;
+    if(mailid.isEmpty || password.isEmpty){
+      showSnackBar(context, "Fill both the fields", Colors.red);
     }
-    return true;
-  }
-
-  void sendOTP() {
-    setState(() {
-      otpSent = true;
-    });
-    showSnackBar(context, "OTP sent successfully", Colors.green);
-  }
-
-  void verifyOTP() {
-    if (otpController.text.isEmpty) {
-      showSnackBar(context, 'Please enter the OTP', Colors.red);
-    }
-    // else if(otpController.text!=generatedOtp){
-    //   showsnackBar(context,'Invalid OTP',Colors.red);
-    // }
-    else {
-      showSnackBar(context, 'OTP verified successfully', Colors.green);
-      //Navigator.of(context).pop();
-      // Navigator.pushNamedAndRemoveUntil(context,'HomeRoute',
-      //       (_) => false,
-      //       // ModalRoute.withName('/')
-      // );
-      Navigator.pushNamed(context, '/HomeRoute');
+    else if(!mailid.isEmpty){
+        // if(password==actualpassword){
+        //   showSnackBar(context, "Login is success", Colors.green);
+        //   Navigator.pushNamedAndRemoveUntil(context,'/HomeRoute',
+        //          (_) => false,
+        //   );
+        // }
+        // else{
+        //   showSnackBar(context, "Incorrect details and if not registered register first", Colors.red);
+        // }
     }
   }
 }
