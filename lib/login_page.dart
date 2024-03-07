@@ -12,6 +12,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController mailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool showpassword=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,9 +37,17 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: 20.0),
                 // Password Input
+                IconButton(
+                    onPressed: (){
+                      setState(() {
+                        showpassword=!showpassword;
+                      });
+                    },
+                    icon: Icon(Icons.remove_red_eye_rounded)
+                ),
                 TextField(
-                  maxLength: 10,
-                  obscureText: true,
+                  maxLength: 20,
+                  obscureText: showpassword,
                   //obscuringCharacter: '\$',
                   controller: passwordController,
                   keyboardType: TextInputType.number,

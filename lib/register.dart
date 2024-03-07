@@ -76,13 +76,13 @@ class _RegisterPageState extends State<RegisterPage> {
     if(mail.isEmpty || pass.isEmpty || confirmpass.isEmpty){
       showSnackBar(context, "Enter all details", Colors.red);
     }
-    else if(pass==confirmpass) {
+    else if(pass!=confirmpass) {
+      showSnackBar(context, "Confirm Password does not match", Colors.red);
+    }
+    else{
       // perform logic for registering user
       showSnackBar(context, "Registered Succesfully", Colors.green);
       Navigator.pushNamedAndRemoveUntil(context, '/HomeRoute', (_) => false);
-    }
-    else{
-      showSnackBar(context, "Confirm Password does not match", Colors.red);
     }
   }
 }
