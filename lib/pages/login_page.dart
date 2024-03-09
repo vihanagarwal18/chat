@@ -89,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () {
                       Navigator.pushNamedAndRemoveUntil(context, '/ForgetPassword', (_) => false);
                     },
-                    child: Text('foregt password'),
+                    child: Text('Forgot Password'),
                   ),
                 ],
               ),
@@ -113,7 +113,9 @@ class _LoginPageState extends State<LoginPage> {
         try{
           await authService.signInWithEmailPassword(mailid, password);
         }
-        catch (e){}
+        catch (e){
+          throw Exception(e);
+        }
         // if(password==actualpassword){
         //   showSnackBar(context, "Login is success", Colors.green);
         //   Navigator.pushNamedAndRemoveUntil(context,'/HomeRoute',

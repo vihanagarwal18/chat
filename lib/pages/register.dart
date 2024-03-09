@@ -1,6 +1,6 @@
 import 'package:chat/components/components.dart';
 import 'package:flutter/material.dart';
-
+import 'package:chat/auth/auth_service.dart';
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -102,7 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void submit_register(){
+  void submit_register() {
     String mail=mailregisterController.text;
     String pass=passController.text;
     String confirmpass=confirmpassController.text;
@@ -115,8 +115,19 @@ class _RegisterPageState extends State<RegisterPage> {
     }
     else{
       // perform logic for registering user
-      showSnackBar(context, "Registered Succesfully", Colors.green);
-      Navigator.pushNamedAndRemoveUntil(context, '/LoginRoute', (_) => false);
+      try{
+        final _auth=AuthService();
+        _auth.signUpWithEmailPassword(mail, pass);
+        showSnackBar(context, "Registered Succesfully", Colors.green);
+        //_auth.signOut();
+        Navigator.pushNamedAndRemoveUntil(context, '/AuthGate', (_) => false);
+      }
+      catch (e){
+        throw Exception(e);
+      }
+
+      //_auth.signOut();
+      //Navigator.pushNamedAndRemoveUntil(context, '/HomeRoute', (_) => false);
     }
   }
 }

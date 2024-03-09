@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         '/LoginRoute':(context) => LoginPage(),
         '/RegisterRoute':(context) => RegisterPage(),
         '/ForgetPassword' :(context) => ForgetPassword(),
+        '/AuthGate': (context) => AuthGate(),
         //'/':(context) => LoginPage(),
       },
       debugShowCheckedModeBanner: false,
