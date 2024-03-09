@@ -21,8 +21,10 @@ class _HomepageState extends State<Homepage> {
         backgroundColor: Colors.black,
         foregroundColor: Colors.white, // arrow vagra ka colour
       ),
-      body: Container(
-
+      body: SafeArea(
+        child: Container(
+          
+        ),
       ),
     );
   }

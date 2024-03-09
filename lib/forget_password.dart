@@ -1,17 +1,18 @@
-import 'package:chat/components/components.dart';
 import 'package:flutter/material.dart';
+import 'components/components.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class ForgetPassword extends StatefulWidget {
+  const ForgetPassword({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<ForgetPassword> createState() => _ForgetPasswordState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _ForgetPasswordState extends State<ForgetPassword> {
   TextEditingController mailregisterController = TextEditingController();
   TextEditingController passController = TextEditingController();
   TextEditingController confirmpassController=TextEditingController();
+  TextEditingController otpController=TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
             child: Container(
               width: MediaQuery.of(context).size.width * .5,
-              height: MediaQuery.of(context).size.height * .5,
+              height: MediaQuery.of(context).size.height * .667,
               decoration: BoxDecoration(
                   border: Border.all(), borderRadius: BorderRadius.circular(20)),
               padding: EdgeInsets.all(20.0),
@@ -36,6 +37,16 @@ class _RegisterPageState extends State<RegisterPage> {
                       labelText: 'Enter Your Email ID',
                     ),
                   ),
+                  SizedBox(height: 20.0),
+
+                  TextField(
+                    controller: otpController,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: 'Enter Otp',
+                    ),
+                  ),
+
                   SizedBox(height: 20.0),
                   // password Input
                   TextField(
@@ -56,7 +67,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: () {
-                      submit_register();
+                      submit_finish();
                       //verifyOTP();
                     },
                     child: Text('Submit'),
@@ -70,20 +81,21 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void submit_register(){
+  void submit_finish(){
     String mail=mailregisterController.text;
     String pass=passController.text;
     String confirmpass=confirmpassController.text;
+    String otp=otpController.text;
 
-    if(mail.isEmpty || pass.isEmpty || confirmpass.isEmpty){
+    if(mail.isEmpty || pass.isEmpty || confirmpass.isEmpty || otp.isEmpty){
       showSnackBar(context, "Enter all details", Colors.red);
     }
     else if(pass!=confirmpass) {
       showSnackBar(context, "Confirm Password does not match", Colors.red);
     }
     else{
-      // perform logic for registering user
-      showSnackBar(context, "Registered Succesfully", Colors.green);
+      // perform logic for checking correct otp and change password
+      showSnackBar(context, "Password change Succesfully", Colors.green);
       Navigator.pushNamedAndRemoveUntil(context, '/LoginRoute', (_) => false);
     }
   }
