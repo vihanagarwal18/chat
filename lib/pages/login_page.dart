@@ -1,6 +1,8 @@
 import 'package:chat/components/components.dart';
 import 'package:flutter/material.dart';
-import 'homepage.dart';
+//import 'homepage.dart';
+import 'package:chat/auth/auth_service.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -99,13 +101,19 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 
-  void submit_login(){
+  void submit_login() async {
     String mailid=mailController.text;
     String password=passwordController.text;
+    final authService=AuthService();
+
     if(mailid.isEmpty || password.isEmpty){
       showSnackBar(context, "Fill both the fields", Colors.red);
     }
     else if(!mailid.isEmpty){
+        try{
+          await authService.signInWithEmailPassword(mailid, password);
+        }
+        catch (e){}
         // if(password==actualpassword){
         //   showSnackBar(context, "Login is success", Colors.green);
         //   Navigator.pushNamedAndRemoveUntil(context,'/HomeRoute',

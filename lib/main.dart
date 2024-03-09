@@ -1,3 +1,4 @@
+import 'package:chat/auth/auth_gate.dart';
 import 'package:flutter/material.dart';
 import 'pages/homepage.dart';
 import 'pages/login_page.dart';
@@ -27,8 +28,8 @@ class MyApp extends StatelessWidget {
         //'/':(context) => LoginPage(),
       },
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
-      //home: Homepage(),
+      // home: LoginPage(),
+      home: AuthGate(),
     );
   }
 }
