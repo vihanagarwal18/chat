@@ -12,6 +12,8 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController mailregisterController = TextEditingController();
   TextEditingController passController = TextEditingController();
   TextEditingController confirmpassController=TextEditingController();
+  bool showpassword=false;
+  bool confirmpassword=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,20 +40,50 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   SizedBox(height: 20.0),
                   // password Input
-                  TextField(
-                    maxLength: 20,
-                    controller: passController,
-                    decoration: InputDecoration(
-                      labelText: 'Enter Password',
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          maxLength: 20,
+                          controller: passController,
+                          obscureText: showpassword,
+                          decoration: InputDecoration(
+                            labelText: 'Enter Password',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            showpassword = !showpassword;
+                          });
+                        },
+                        icon: Icon(Icons.remove_red_eye_rounded),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 20.0),
-                  TextField(
-                    maxLength: 20,
-                    controller: confirmpassController,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          maxLength: 20,
+                          obscureText: confirmpassword,
+                          controller: confirmpassController,
+                          decoration: InputDecoration(
+                            labelText: 'Confirm Password',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            confirmpassword = !confirmpassword;
+                          });
+                        },
+                        icon: Icon(Icons.remove_red_eye_rounded),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 20.0),
                   ElevatedButton(

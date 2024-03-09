@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'homepage.dart';
-import 'login_page.dart';
-import 'register.dart';
-import 'forget_password.dart';
-void main() {
+import 'pages/homepage.dart';
+import 'pages/login_page.dart';
+import 'pages/register.dart';
+import 'pages/forget_password.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 

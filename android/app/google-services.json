@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "154523249903",
+    "project_id": "lenk-chat",
+    "storage_bucket": "lenk-chat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154523249903:android:6fb0a9363f0e4946887f1a",
+        "android_client_info": {
+          "package_name": "com.example.chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnsOEQeFdenFiVdD4S11hKw7Nf9i0hnGE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

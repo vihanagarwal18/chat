@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'components/components.dart';
+import '../components/components.dart';
 
 class ForgetPassword extends StatefulWidget {
   const ForgetPassword({super.key});
@@ -13,6 +13,8 @@ class _ForgetPasswordState extends State<ForgetPassword> {
   TextEditingController passController = TextEditingController();
   TextEditingController confirmpassController=TextEditingController();
   TextEditingController otpController=TextEditingController();
+  bool showpassword=false;
+  bool confirmpassword=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,20 +51,50 @@ class _ForgetPasswordState extends State<ForgetPassword> {
 
                   SizedBox(height: 20.0),
                   // password Input
-                  TextField(
-                    maxLength: 20,
-                    controller: passController,
-                    decoration: InputDecoration(
-                      labelText: 'Enter Password',
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          maxLength: 20,
+                          obscureText: showpassword,
+                          controller: passController,
+                          decoration: InputDecoration(
+                            labelText: 'Enter Password',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            showpassword = !showpassword;
+                          });
+                        },
+                        icon: Icon(Icons.remove_red_eye_rounded),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 20.0),
-                  TextField(
-                    maxLength: 20,
-                    controller: confirmpassController,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          maxLength: 20,
+                          obscureText: confirmpassword,
+                          controller: confirmpassController,
+                          decoration: InputDecoration(
+                            labelText: 'Confirm Password',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            confirmpassword = !confirmpassword;
+                          });
+                        },
+                        icon: Icon(Icons.remove_red_eye_rounded),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 20.0),
                   ElevatedButton(
