@@ -1,3 +1,4 @@
+import 'package:chat/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class Homepage extends StatefulWidget {
@@ -18,6 +19,15 @@ class _HomepageState extends State<Homepage> {
             fontSize: 20,
           ),
         ),
+        actions: [
+          //logout button
+          IconButton(
+              onPressed: (){
+                logout();
+              },
+              icon: Icon(Icons.logout)
+          ),
+        ],
         backgroundColor: Colors.black,
         foregroundColor: Colors.white, // arrow vagra ka colour
       ),
@@ -27,5 +37,10 @@ class _HomepageState extends State<Homepage> {
         ),
       ),
     );
+  }
+
+  void logout(){
+    final _auth=AuthService();
+    _auth.signOut();
   }
 }
