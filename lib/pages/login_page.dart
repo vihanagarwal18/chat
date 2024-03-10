@@ -1,8 +1,8 @@
 import 'package:chat/components/components.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 //import 'homepage.dart';
 import 'package:chat/auth/auth_service.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -14,7 +14,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController mailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  bool showpassword=false;
+  bool showpassword = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +26,8 @@ class _LoginPageState extends State<LoginPage> {
               width: MediaQuery.of(context).size.width * .5,
               height: MediaQuery.of(context).size.height * .667,
               decoration: BoxDecoration(
-                  border: Border.all(), borderRadius: BorderRadius.circular(20)),
+                  border: Border.all(),
+                  borderRadius: BorderRadius.circular(20)),
               padding: EdgeInsets.all(20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -65,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                   SizedBox(height: 20.0),
-        
+
                   // Verify OTP Button
                   ElevatedButton(
                     onPressed: () {
@@ -75,19 +76,22 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 20.0),
                   ElevatedButton(
-                      onPressed: (){
-                          //Navigator.of(context).pop();
-                          Navigator.pushNamedAndRemoveUntil(context,'/RegisterRoute',
-                                (_) => false,
-                          );
-                      },
-                      child: Text('For Registeration'),
+                    onPressed: () {
+                      //Navigator.of(context).pop();
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/RegisterRoute',
+                        (_) => false,
+                      );
+                    },
+                    child: Text('For Registeration'),
                   ),
                   SizedBox(height: 20.0),
                   // foregt password
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamedAndRemoveUntil(context, '/ForgetPassword', (_) => false);
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/ForgetPassword', (_) => false);
                     },
                     child: Text('Forgot Password'),
                   ),
@@ -100,31 +104,48 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-
   void submit_login() async {
-    String mailid=mailController.text;
-    String password=passwordController.text;
-    final authService=AuthService();
+    String mailid = mailController.text;
+    String password = passwordController.text;
+    final authService = AuthService();
 
-    if(mailid.isEmpty || password.isEmpty){
+    if (mailid.isEmpty || password.isEmpty) {
       showSnackBar(context, "Fill both the fields", Colors.red);
-    }
-    else if(!mailid.isEmpty){
-        try{
-          await authService.signInWithEmailPassword(mailid, password);
+    } else if (!mailid.isEmpty) {
+      // try{
+      //   await authService.signInWithEmailPassword(mailid, password);
+      // }
+      try {
+        final userCredential =
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: mailid,
+          password: password,
+        );
+        print(userCredential.toString());
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          if (user.emailVerified) {
+            print("User is verified");
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/HomeRoute',
+              (_) => false,
+            );
+          } else {
+            print("User is not verified");
+          }
         }
-        catch (e){
-          throw Exception(e);
-        }
-        // if(password==actualpassword){
-        //   showSnackBar(context, "Login is success", Colors.green);
-        //   Navigator.pushNamedAndRemoveUntil(context,'/HomeRoute',
-        //          (_) => false,
-        //   );
-        // }
-        // else{
-        //   showSnackBar(context, "Incorrect details and if not registered register first", Colors.red);
-        // }
+      } catch (e) {
+        throw Exception(e);
+      }
+      // if(password==actualpassword){
+      //   showSnackBar(context, "Login is success", Colors.green);
+      //   Navigator.pushNamedAndRemoveUntil(context,'/HomeRoute',
+      //          (_) => false,
+      //   );
+      // }
+      // else{
+      //   showSnackBar(context, "Incorrect details and if not registered register first", Colors.red);
+      // }
     }
   }
 }

@@ -3,7 +3,6 @@ import 'package:chat/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
 
@@ -17,13 +16,16 @@ class _AuthGateState extends State<AuthGate> {
     return Scaffold(
       body: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context,snapshot){
+        builder: (context, snapshot) {
           //user is logged in
-          if(snapshot.hasData){
+
+          if (snapshot.hasData) {
+            print('logged in');
             return Homepage();
           }
           //user if logged out
-          else{
+          else {
+            print("logged out");
             return LoginPage();
           }
         },
@@ -31,4 +33,3 @@ class _AuthGateState extends State<AuthGate> {
     );
   }
 }
-

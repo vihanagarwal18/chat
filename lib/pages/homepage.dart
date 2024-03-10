@@ -13,7 +13,8 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Lenk",
+        title: Text(
+          "Lenk",
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -22,25 +23,24 @@ class _HomepageState extends State<Homepage> {
         actions: [
           //logout button
           IconButton(
-              onPressed: (){
+              onPressed: () {
                 logout();
               },
-              icon: Icon(Icons.logout)
-          ),
+              icon: Icon(Icons.logout)),
         ],
         backgroundColor: Colors.black,
         foregroundColor: Colors.white, // arrow vagra ka colour
       ),
       body: SafeArea(
-        child: Container(
-          
-        ),
+        child: Container(),
       ),
     );
   }
 
-  void logout(){
-    final _auth=AuthService();
-    _auth.signOut();
+  void logout() async {
+    final _auth = AuthService();
+    await _auth.signOut();
+    // Navigator.pop(context);
+    // Navigator.pushNamed(context, '/HomeRoute');
   }
 }

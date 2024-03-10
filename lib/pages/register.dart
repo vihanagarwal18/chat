@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'package:chat/components/components.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/auth/auth_service.dart';
@@ -121,10 +123,17 @@ class _RegisterPageState extends State<RegisterPage> {
     } else {
       final _auth = AuthService();
       try {
-        UserCredential userCredential =
-            await _auth.signUpWithEmailPassword(mail, pass);
-        if (userCredential.user != null) {
-          await userCredential.user!.sendEmailVerification();
+        //  final userCredential = await FirebaseAuth.instance
+        //                         .signInWithEmailAndPassword(
+        //                       email: mail,
+        //                       password: pass,
+        //                     );
+        //                     print(userCredential.toString());
+        User user = await _auth.signUpWithEmailPassword(mail, pass);
+        if (user != null) {
+          await user.sendEmailVerification();
+
+          await checkEmailVerified(user);
           // Show dialog informing the user to verify their email
           showDialog(
             context: context,
@@ -141,7 +150,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       SizedBox(height: 20),
                       TextButton(
                         onPressed: () async {
-                          await userCredential.user!.sendEmailVerification();
+                          await user.sendEmailVerification();
                           showSnackBar(
                               context,
                               "Verification email resent. Please check your email.",
@@ -151,7 +160,14 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       TextButton(
                         onPressed: () async {
-                          await checkEmailVerified(userCredential.user!);
+                          final userCredential = await FirebaseAuth.instance
+                              .signInWithEmailAndPassword(
+                            email: mail,
+                            password: pass,
+                          );
+                          print(userCredential.toString());
+                          final user = FirebaseAuth.instance.currentUser;
+                          await checkEmailVerified(user!);
                         },
                         child: Text('I have verified my email.'),
                       ),
@@ -160,9 +176,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 actions: <Widget>[
                   TextButton(
-                    onPressed: () async{
-                      verificationTimer?.cancel(); // Cancel the verification check
-                      await userCredential.user!.delete();
+                    onPressed: () async {
+                      verificationTimer
+                          ?.cancel(); // Cancel the verification check
+                      await user.delete();
                       Navigator.of(context).pop();
                     },
                     child: Text('Cancel'),
@@ -173,7 +190,7 @@ class _RegisterPageState extends State<RegisterPage> {
           );
 
           // Start checking for email verification
-          await checkEmailVerified(userCredential.user!);
+          await checkEmailVerified(user);
         } else {
           showSnackBar(context, "Registration Failed", Colors.red);
         }
@@ -195,8 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
         Navigator.of(context).pop(); // Dismiss the verification dialog
         Navigator.pushNamedAndRemoveUntil(
             context, '/AuthGate', (_) => false); // Navigate to '/AuthGate'
-      }
-      else{
+      } else {
         print(2);
       }
     });
