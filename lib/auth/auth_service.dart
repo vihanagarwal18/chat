@@ -22,10 +22,6 @@ class AuthService {
 
   Future<User> signUpWithEmailPassword(String email, password) async {
     try {
-      // UserCredential userCredential=await _auth.createUserWithEmailAndPassword(
-      //     email: email,
-      //     password: password
-      // );
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -39,7 +35,6 @@ class AuthService {
 
   //sign out
   Future<void> signOut() async {
-    print(1);
     await _auth.signOut();
   }
 

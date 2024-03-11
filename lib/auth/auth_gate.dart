@@ -18,7 +18,6 @@ class _AuthGateState extends State<AuthGate> {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           //user is logged in
-
           if (snapshot.hasData) {
             print('logged in');
             return Homepage();

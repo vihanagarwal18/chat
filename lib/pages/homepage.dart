@@ -1,5 +1,7 @@
 import 'package:chat/auth/auth_service.dart';
+import 'package:chat/components/my_drawer.dart';
 import 'package:flutter/material.dart';
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -20,27 +22,13 @@ class _HomepageState extends State<Homepage> {
             fontSize: 20,
           ),
         ),
-        actions: [
-          //logout button
-          IconButton(
-              onPressed: () {
-                logout();
-              },
-              icon: Icon(Icons.logout)),
-        ],
         backgroundColor: Colors.black,
         foregroundColor: Colors.white, // arrow vagra ka colour
       ),
+      drawer: MyDrawer(),
       body: SafeArea(
         child: Container(),
       ),
     );
-  }
-
-  void logout() async {
-    final _auth = AuthService();
-    await _auth.signOut();
-    // Navigator.pop(context);
-    // Navigator.pushNamed(context, '/HomeRoute');
   }
 }

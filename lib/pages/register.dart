@@ -31,7 +31,7 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
             child: Container(
               width: MediaQuery.of(context).size.width * .5,
-              height: MediaQuery.of(context).size.height * .5,
+              height: MediaQuery.of(context).size.height * .667,
               decoration: BoxDecoration(
                   border: Border.all(),
                   borderRadius: BorderRadius.circular(20)),
@@ -101,6 +101,13 @@ class _RegisterPageState extends State<RegisterPage> {
                       //verifyOTP();
                     },
                     child: Text('Submit'),
+                  ),
+                  SizedBox(height: 20.0),
+                  ElevatedButton(
+                      onPressed: (){
+                        Navigator.pushNamedAndRemoveUntil(context, '/AuthGate', (_) => false);
+                      },
+                      child: Text('Go to Login Page')
                   ),
                 ],
               ),
@@ -188,7 +195,6 @@ class _RegisterPageState extends State<RegisterPage> {
               );
             },
           );
-
           // Start checking for email verification
           await checkEmailVerified(user);
         } else {

@@ -112,9 +112,7 @@ class _LoginPageState extends State<LoginPage> {
     if (mailid.isEmpty || password.isEmpty) {
       showSnackBar(context, "Fill both the fields", Colors.red);
     } else if (!mailid.isEmpty) {
-      // try{
-      //   await authService.signInWithEmailPassword(mailid, password);
-      // }
+
       try {
         final userCredential =
             await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -126,26 +124,20 @@ class _LoginPageState extends State<LoginPage> {
         if (user != null) {
           if (user.emailVerified) {
             print("User is verified");
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              '/HomeRoute',
-              (_) => false,
-            );
+            Navigator.of(context).pushNamedAndRemoveUntil('/HomeRoute', (_) => false,);
           } else {
             print("User is not verified");
+            showSnackBar(context, "Please do the verification first", Colors.red);
+            //logOut();
           }
         }
       } catch (e) {
         throw Exception(e);
       }
-      // if(password==actualpassword){
-      //   showSnackBar(context, "Login is success", Colors.green);
-      //   Navigator.pushNamedAndRemoveUntil(context,'/HomeRoute',
-      //          (_) => false,
-      //   );
-      // }
-      // else{
-      //   showSnackBar(context, "Incorrect details and if not registered register first", Colors.red);
-      // }
     }
+  }
+  void logOut() async{
+    final _auth=AuthService();
+    await _auth.signOut();
   }
 }
