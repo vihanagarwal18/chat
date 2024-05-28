@@ -17,3 +17,11 @@ class _SettingState extends State<Setting> {
     );
   }
 }
+
+
+//log out
+//permission
+//theme
+//username change option
+//account info
+
