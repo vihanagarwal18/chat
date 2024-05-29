@@ -1,5 +1,6 @@
 import 'package:chat/auth/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:chat/pages/register.dart';
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 class MyDrawer extends StatefulWidget {
@@ -33,7 +34,7 @@ class _MyDrawerState extends State<MyDrawer> {
                 child: ListTile(
                   title: Text('H O M E'),
                   leading: Icon(Icons.home),
-                  onTap: (){
+                  onTap: () {
                     Navigator.pop(context);
                   },
                 ),
@@ -44,11 +45,11 @@ class _MyDrawerState extends State<MyDrawer> {
                 child: ListTile(
                   title: Text('S E T T I N G'),
                   leading: Icon(Icons.settings),
-                  onTap: (){
+                  onTap: () {
                     Navigator.pop(context);
                     Navigator.of(context).pushNamed(
-                        '/SettingPage',
-                        // MaterialPageRoute(builder: (context)=>'/SettingPage'
+                      '/SettingPage',
+                      // MaterialPageRoute(builder: (context)=>'/SettingPage'
                     );
                   },
                 ),
@@ -56,23 +57,39 @@ class _MyDrawerState extends State<MyDrawer> {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 25.0,bottom: 25.0),
+            padding: const EdgeInsets.only(left: 25.0, bottom: 25.0),
             child: ListTile(
               title: Text('L O G O U T'),
               leading: Icon(Icons.logout),
-              onTap: (){
+              onTap: () {
                 logOut();
               },
             ),
           ),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 25.0,bottom: 25.0),
+          //   child: ListTile(
+          //     title: Text('DELETE ACCOUNT'),
+          //     leading: Icon(Icons.delete),
+          //     onTap: () async {
+          //       await deleteaccount();
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );
   }
 
   void logOut() async {
-    final _auth=AuthService();
+    final _auth = AuthService();
+    print("logout through drawer");
     await _auth.signOut();
+    Navigator.pushNamedAndRemoveUntil(context, 'LoginRoute', (_) => false,);
   }
-}
 
+  // void deleteaccount() async{
+  //   final _auth=AuthService();
+  //   await _auth.signOut();
+  // }
+}

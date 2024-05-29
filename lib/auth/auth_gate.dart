@@ -25,6 +25,7 @@ class _AuthGateState extends State<AuthGate> {
           //user if logged out
           else {
             print("logged out");
+            //Navigator.pushNamedAndRemoveUntil(context, 'LoginRoute', (_) => false,);
             return LoginPage();
           }
         },

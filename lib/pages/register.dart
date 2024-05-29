@@ -1,10 +1,13 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
+import 'dart:js_interop_unsafe';
+
 import 'package:chat/components/components.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/auth/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:async'; // Import Dart's async library for Timer
+import 'dart:async';
+// Import Dart's async library for Timer
 
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 class RegisterPage extends StatefulWidget {
@@ -104,11 +107,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   SizedBox(height: 20.0),
                   ElevatedButton(
-                      onPressed: (){
-                        Navigator.pushNamedAndRemoveUntil(context, '/AuthGate', (_) => false);
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, '/AuthGate', (_) => false);
                       },
-                      child: Text('Go to Login Page')
-                  ),
+                      child: Text('Go to Login Page')),
                 ],
               ),
             ),
@@ -212,15 +215,45 @@ class _RegisterPageState extends State<RegisterPage> {
     verificationTimer = Timer.periodic(checkInterval, (timer) async {
       await user.reload(); // Reload user to get the latest status
       print(user);
-      if (user.emailVerified) {
+
+      if (user.emailVerified == true) {
         print(1);
         timer.cancel(); // Stop the timer when the email is verified
         Navigator.of(context).pop(); // Dismiss the verification dialog
+        showSnackBar(
+            context, "verified and logined successfully", Colors.green);
         Navigator.pushNamedAndRemoveUntil(
             context, '/AuthGate', (_) => false); // Navigate to '/AuthGate'
       } else {
         print(2);
+        showSnackBar(context, "Verify the mail first", Colors.red);
       }
     });
+  }
+
+  void deleteaccount() async {
+    final _auth = AuthService();
+    String mail = mailregisterController.text;
+    String pass = passController.text;
+
+    try {
+      // Sign in the user to get the current user object
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: mail,
+        password: pass,
+      );
+      User user = userCredential.user!;
+
+      // Delete the user account
+      await user.delete();
+      await _auth.signOut();
+      showSnackBar(context, "Account deleted successfully", Colors.green);
+    } catch (e) {
+      showSnackBar(context, "Account deletion failed: $e", Colors.red);
+    }
+    // await _auth.signOut();
+    // // User user= await _auth.signInWithEmailPassword(mail, pass);
+    // await user.delete();
   }
 }

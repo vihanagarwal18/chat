@@ -112,7 +112,6 @@ class _LoginPageState extends State<LoginPage> {
     if (mailid.isEmpty || password.isEmpty) {
       showSnackBar(context, "Fill both the fields", Colors.red);
     } else if (!mailid.isEmpty) {
-
       try {
         final userCredential =
             await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -124,20 +123,32 @@ class _LoginPageState extends State<LoginPage> {
         if (user != null) {
           if (user.emailVerified) {
             print("User is verified");
-            Navigator.of(context).pushNamedAndRemoveUntil('/HomeRoute', (_) => false,);
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/HomeRoute',
+              (_) => false,
+            );
           } else {
             print("User is not verified");
-            showSnackBar(context, "Please do the verification first", Colors.red);
+            showSnackBar(
+                context, "Please do the verification first", Colors.red);
             //logOut();
           }
         }
+      } on FirebaseAuthException catch (e) {
+        print("FirebaseAuthException caught: ${e.code}");
+        if (e.code == 'invalid-credential') {
+          showSnackBar(context, "Incorrect credentials or mail not registered", Colors.red);
+        } else {
+          showSnackBar(context, "An error occurred. Please try again.", Colors.red);
+        }
       } catch (e) {
-        throw Exception(e);
+        showSnackBar(context, "An error occurred. Please try again.", Colors.red);
       }
     }
   }
-  void logOut() async{
-    final _auth=AuthService();
+
+  void logOut() async {
+    final _auth = AuthService();
     await _auth.signOut();
   }
 }
