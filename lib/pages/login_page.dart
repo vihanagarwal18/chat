@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
           if (user.emailVerified) {
             print("User is verified");
             Navigator.of(context).pushNamedAndRemoveUntil(
-              '/HomeRoute',
+              '/AuthGate',
               (_) => false,
             );
           } else {

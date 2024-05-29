@@ -231,29 +231,29 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  void deleteaccount() async {
-    final _auth = AuthService();
-    String mail = mailregisterController.text;
-    String pass = passController.text;
-
-    try {
-      // Sign in the user to get the current user object
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: mail,
-        password: pass,
-      );
-      User user = userCredential.user!;
-
-      // Delete the user account
-      await user.delete();
-      await _auth.signOut();
-      showSnackBar(context, "Account deleted successfully", Colors.green);
-    } catch (e) {
-      showSnackBar(context, "Account deletion failed: $e", Colors.red);
-    }
-    // await _auth.signOut();
-    // // User user= await _auth.signInWithEmailPassword(mail, pass);
-    // await user.delete();
-  }
+  // void deleteaccount() async {
+  //   final _auth = AuthService();
+  //   String mail = mailregisterController.text;
+  //   String pass = passController.text;
+  //
+  //   try {
+  //     // Sign in the user to get the current user object
+  //     UserCredential userCredential =
+  //         await FirebaseAuth.instance.signInWithEmailAndPassword(
+  //       email: mail,
+  //       password: pass,
+  //     );
+  //     User user = userCredential.user!;
+  //
+  //     // Delete the user account
+  //     await user.delete();
+  //     await _auth.signOut();
+  //     showSnackBar(context, "Account deleted successfully", Colors.green);
+  //   } catch (e) {
+  //     showSnackBar(context, "Account deletion failed: $e", Colors.red);
+  //   }
+  //   // await _auth.signOut();
+  //   // // User user= await _auth.signInWithEmailPassword(mail, pass);
+  //   // await user.delete();
+  // }
 }

@@ -56,26 +56,30 @@ class _MyDrawerState extends State<MyDrawer> {
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 25.0, bottom: 25.0),
-            child: ListTile(
-              title: Text('L O G O U T'),
-              leading: Icon(Icons.logout),
-              onTap: () {
-                logOut();
-              },
-            ),
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 25.0),
+                child: ListTile(
+                  title: Text('L O G O U T'),
+                  leading: Icon(Icons.logout),
+                  onTap: () {
+                    logOut();
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 25.0, bottom: 25.0),
+                child: ListTile(
+                  title: Text('DELETE ACCOUNT'),
+                  leading: Icon(Icons.delete),
+                  onTap: () async {
+                    deleteaccount();
+                  },
+                ),
+              ),
+            ],
           ),
-          // Padding(
-          //   padding: const EdgeInsets.only(left: 25.0,bottom: 25.0),
-          //   child: ListTile(
-          //     title: Text('DELETE ACCOUNT'),
-          //     leading: Icon(Icons.delete),
-          //     onTap: () async {
-          //       await deleteaccount();
-          //     },
-          //   ),
-          // ),
         ],
       ),
     );
@@ -85,11 +89,32 @@ class _MyDrawerState extends State<MyDrawer> {
     final _auth = AuthService();
     print("logout through drawer");
     await _auth.signOut();
-    Navigator.pushNamedAndRemoveUntil(context, 'LoginRoute', (_) => false,);
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/AuthGate',
+      (_) => false,
+    );
   }
 
-  // void deleteaccount() async{
-  //   final _auth=AuthService();
-  //   await _auth.signOut();
-  // }
+  void deleteaccount() async {
+    final _auth = AuthService();
+    try {
+      final user = _auth.getCurrentUser();
+      if (user != null) {
+        print("User with email ${user.email} is being deleted");
+        await user.delete();
+        await _auth.signOut();
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/AuthGate',
+          (_) => false,
+        );
+      } else {
+        print("No user is currently signed in.");
+      }
+    } catch (e) {
+      print("Error deleting user: $e");
+      // Handle specific errors if needed, e.g., re-authentication required
+    }
+  }
 }

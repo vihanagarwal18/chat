@@ -63,21 +63,27 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildUserListItem(Map<String,dynamic> userData,BuildContext context){
     print("no of users are ${userData.length}");
+    print(userData);
     //display all users
-    return UserTile(
-      text: userData["email"],
-      onTap:(){
-        //tapped on a user to got to chat page
-        Navigator.push(
+    if(userData["email"] !=_authService.getCurrentUser()!.email){
+      return UserTile(
+        text: userData["email"],
+        onTap:(){
+          //tapped on a user to got to chat page
+          Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) =>ChatPage(
                 receiverEmail:userData["email"],
               ),
             ),
-        );
-      },
-    );
+          );
+        },
+      );
+    }
+    else{
+      return Container();
+    }
   }
 }
 
