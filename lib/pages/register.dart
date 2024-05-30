@@ -1,7 +1,5 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
-import 'dart:js_interop_unsafe';
-
 import 'package:chat/components/components.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/auth/auth_service.dart';
@@ -156,28 +154,44 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: ListBody(
                     children: <Widget>[
                       Text(
-                          'A verification email has been sent to $mail. Please verify your email ID to complete registration.'),
+                          'A verification email has been sent to $mail. Please verify your email ID to complete registration.It will redirect automatically after verification'),
                       SizedBox(height: 20),
                       TextButton(
                         onPressed: () async {
-                          await user.sendEmailVerification();
-                          showSnackBar(
-                              context,
-                              "Verification email resent. Please check your email.",
-                              Colors.blue);
+                          try {
+                            await user.reload();
+                            user = FirebaseAuth.instance.currentUser!;
+                            await user.sendEmailVerification();
+                            showSnackBar(
+                                context,
+                                "Verification email resent. Please check your email.",
+                                Colors.blue);
+                          } catch (e) {
+                            showSnackBar(
+                                context,
+                                "Failed to resend verification email: $e",
+                                Colors.red);
+                          }
                         },
                         child: Text('Resend Verification Email'),
                       ),
                       TextButton(
                         onPressed: () async {
-                          final userCredential = await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                            email: mail,
-                            password: pass,
-                          );
-                          print(userCredential.toString());
-                          final user = FirebaseAuth.instance.currentUser;
-                          await checkEmailVerified(user!);
+                          try {
+                            final userCredential = await FirebaseAuth.instance
+                                .signInWithEmailAndPassword(
+                              email: mail,
+                              password: pass,
+                            );
+                            print(userCredential.toString());
+                            await user.reload();
+                            final updatedUser =
+                                FirebaseAuth.instance.currentUser;
+                            await checkEmailVerified(updatedUser!);
+                          } catch (e) {
+                            showSnackBar(context, "Failed to verify email: $e",
+                                Colors.red);
+                          }
                         },
                         child: Text('I have verified my email.'),
                       ),
@@ -214,19 +228,21 @@ class _RegisterPageState extends State<RegisterPage> {
 
     verificationTimer = Timer.periodic(checkInterval, (timer) async {
       await user.reload(); // Reload user to get the latest status
-      print(user);
+      User? updatedUser =
+          FirebaseAuth.instance.currentUser; // Get the updated user
+      print(updatedUser);
 
-      if (user.emailVerified == true) {
+      if (updatedUser != null && updatedUser.emailVerified) {
         print(1);
         timer.cancel(); // Stop the timer when the email is verified
         Navigator.of(context).pop(); // Dismiss the verification dialog
         showSnackBar(
-            context, "verified and logined successfully", Colors.green);
+            context, "Verified and logged in successfully", Colors.green);
         Navigator.pushNamedAndRemoveUntil(
             context, '/AuthGate', (_) => false); // Navigate to '/AuthGate'
       } else {
         print(2);
-        showSnackBar(context, "Verify the mail first", Colors.red);
+        // showSnackBar(context, "Verify the mail first", Colors.red);
       }
     });
   }

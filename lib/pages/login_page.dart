@@ -129,8 +129,8 @@ class _LoginPageState extends State<LoginPage> {
             );
           } else {
             print("User is not verified");
-            showSnackBar(
-                context, "Please do the verification first", Colors.red);
+            showSnackBar(context, "Please do the verification first", Colors.red);
+            authService.signOut();
             //logOut();
           }
         }
@@ -147,8 +147,8 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void logOut() async {
-    final _auth = AuthService();
-    await _auth.signOut();
-  }
+  // void logOut() async {
+  //   final _auth = AuthService();
+  //   await _auth.signOut();
+  // }
 }
