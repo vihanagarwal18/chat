@@ -21,15 +21,18 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
         title: Text(
           "Lenk",
+          textAlign: TextAlign.center,
           style: TextStyle(
-            color: Colors.white,
+            color: Colors.grey,
             fontSize: 20,
           ),
         ),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white, // arrow vagra ka colour
+        backgroundColor: Colors.transparent,
+        elevation: 0.0,
+        foregroundColor: Colors.grey, // arrow vagra ka colour
       ),
       drawer: MyDrawer(),
       body: SafeArea(
