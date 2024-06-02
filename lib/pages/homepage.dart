@@ -75,6 +75,7 @@ class _HomepageState extends State<Homepage> {
             MaterialPageRoute(
               builder: (context) =>ChatPage(
                 receiverEmail:userData["email"],
+                receiverID: userData["uid"],
               ),
             ),
           );
@@ -82,7 +83,9 @@ class _HomepageState extends State<Homepage> {
       );
     }
     else{
-      return Container();
+      return Container(
+        color: Colors.green,
+      );
     }
   }
 }

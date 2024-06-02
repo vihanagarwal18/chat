@@ -22,6 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool showpassword = true;
   bool confirmpassword = true;
   Timer? verificationTimer; // Declare the Timer
+  bool canResendEmail = true; // Track if the resend button can be pressed
 
   @override
   Widget build(BuildContext context) {
@@ -157,22 +158,32 @@ class _RegisterPageState extends State<RegisterPage> {
                           'A verification email has been sent to $mail. Please verify your email ID to complete registration.It will redirect automatically after verification'),
                       SizedBox(height: 20),
                       TextButton(
-                        onPressed: () async {
-                          try {
-                            await user.reload();
-                            user = FirebaseAuth.instance.currentUser!;
-                            await user.sendEmailVerification();
-                            showSnackBar(
-                                context,
-                                "Verification email resent. Please check your email.",
-                                Colors.blue);
-                          } catch (e) {
-                            showSnackBar(
-                                context,
-                                "Failed to resend verification email: $e",
-                                Colors.red);
-                          }
-                        },
+                        onPressed: canResendEmail
+                            ? () async {
+                                try {
+                                  await user.reload();
+                                  user = FirebaseAuth.instance.currentUser!;
+                                  await user.sendEmailVerification();
+                                  showSnackBar(
+                                      context,
+                                      "Verification email resent. Please check your email.",
+                                      Colors.blue);
+                                  setState(() {
+                                    canResendEmail = false;
+                                  });
+                                  Timer(Duration(seconds: 45), () {
+                                    setState(() {
+                                      canResendEmail = true;
+                                    });
+                                  });
+                                } catch (e) {
+                                  showSnackBar(
+                                      context,
+                                      "Failed to resend verification email: $e",
+                                      Colors.red);
+                                }
+                              }
+                            : null,
                         child: Text('Resend Verification Email'),
                       ),
                       TextButton(

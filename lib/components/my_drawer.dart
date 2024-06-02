@@ -118,3 +118,6 @@ class _MyDrawerState extends State<MyDrawer> {
     }
   }
 }
+
+
+//delete account ke satt firestore main save kara hua data usse account ka delete karna
