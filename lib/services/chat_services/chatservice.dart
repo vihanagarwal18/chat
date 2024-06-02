@@ -32,13 +32,13 @@ class ChatService{
   //send message
   Future<void> sendMessage(String receiverID,message)async {
     //get current user info
-    final String currentUserUD =_auth.currentUser!.uid;
+    final String currentUserID =_auth.currentUser!.uid;
     final String currrentUserEmail = _auth.currentUser!.email!;
     final Timestamp timestamp =Timestamp.now();
     //create a new message
     
     Message newMessage=Message(
-        senderID: currrentUserEmail,
+        senderID: currentUserID,
         senderEmail: currrentUserEmail,
         receiverID: receiverID,
         message: message,
@@ -46,7 +46,7 @@ class ChatService{
     );
 
     // construct chat room ID for the 2 user(sorted to ensure uniqueness)
-    List<String> ids=[currentUserUD,receiverID];
+    List<String> ids=[currentUserID,receiverID];
     ids.sort(); //sort the ids (this ensure the chatRoomID us the same for any 2 people
     String chatRoomID=ids.join('_');
     

@@ -99,7 +99,22 @@ class ChatPage extends StatelessWidget {
   //build message item
   Widget _buildMessageItem(DocumentSnapshot doc){
     Map<String,dynamic> data=doc.data() as Map<String,dynamic>;
-    return Text(data["message"]);
+
+    //is current user
+    bool isCurrentUser =data['senderID'] ==_authService.getCurrentUser()!.uid;
+
+
+    // align message to the right if sender is the current user .otherwise left
+    var alignment =isCurrentUser ? Alignment.centerRight :Alignment.centerLeft;
+    return Container(
+      alignment: alignment,
+      child: Column(
+        crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start ,
+        children: [
+          Text(data["message"]),
+        ],
+      ),
+    );
   }
 
   //build message input
