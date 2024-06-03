@@ -1,4 +1,6 @@
+import 'package:chat/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 void showSnackBar(context, String msg,Color clr) {
@@ -61,16 +63,17 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode=Provider.of<ThemeProvider>(context,listen:false).isDarkMode;
     return Container(
       decoration: BoxDecoration(
-        color: isCurrentUser ? Colors.green: Colors.grey.shade500,
+        color: isCurrentUser ? (isDarkMode ? Colors.green.shade600 : Colors.green.shade500): (isDarkMode ? Colors.grey.shade900 : Colors.grey.shade200),
       ),
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.symmetric(vertical: 2.5,horizontal: 25),
       child: Text(
         message,
         style: TextStyle(
-          color: Colors.white,
+          color: isCurrentUser ? Colors.white : (isDarkMode ? Colors.white : Colors.black),
         ),
       ),
     );
