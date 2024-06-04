@@ -4,25 +4,6 @@ import 'package:chat/services/chat_services/chatservice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-// class ChatPage extends StatefulWidget {
-//   const ChatPage({super.key});
-//
-//   @override
-//   State<ChatPage> createState() => _ChatPageState();
-// }
-//
-// class _ChatPageState extends State<ChatPage> {
-//   late final String receiverEmail;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title:Text(receiverEmail),
-//       ),
-//     );
-//   }
-// }
-
 class ChatPage extends StatefulWidget {
   final String receiverEmail;
   final String receiverID;
@@ -39,18 +20,16 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   //text controller
   final TextEditingController _messageController = TextEditingController();
-
   //chat & auth services
   final ChatService _chatService = ChatService();
   final AuthService _authService = AuthService();
-
   //for text field focus
   FocusNode myFocusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-
     //add listener to focus node
     myFocusNode.addListener(() {
       if (myFocusNode.hasFocus) {
@@ -63,8 +42,6 @@ class _ChatPageState extends State<ChatPage> {
         );
       }
     });
-
-    //wait a bit for listview to be built,then scroll to bottom
     Future.delayed(
       Duration(milliseconds: 500),
       () => scrollDown(),
@@ -78,8 +55,6 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  //scroll controller
-  final ScrollController _scrollController = ScrollController();
   void scrollDown() {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
@@ -88,15 +63,10 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  //send message
   void sendMessage() async {
-    //if there is something inside the textfield
     if (_messageController.text.isNotEmpty) {
-      //send the message
       await _chatService.sendMessage(
           widget.receiverID, _messageController.text);
-
-      //clear text controller after sending the message
       _messageController.clear();
     }
     scrollDown();
@@ -112,17 +82,6 @@ class _ChatPageState extends State<ChatPage> {
         foregroundColor: Colors.grey,
         elevation: 0.0,
       ),
-      // body: Column(
-      //   children: [
-      //     //display all messages
-
-      //     Expanded(
-      //         child: _buildMessageList(),
-      //     ),
-      //     //user input
-
-      //     _buildUserInput(),
-      //   ],
       body: LayoutBuilder(
         builder: (context, constraints) {
           double containerWidth = constraints.maxWidth > 600
@@ -153,16 +112,13 @@ class _ChatPageState extends State<ChatPage> {
     return StreamBuilder(
         stream: _chatService.getMessages(widget.receiverID, senderID),
         builder: (context, snapshot) {
-          //errors
           if (snapshot.hasError) {
             return Text("Error");
           }
-          //loading
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Text("Loading....");
           }
 
-          //return list view
           return ListView(
             controller: _scrollController,
             children: snapshot.data!.docs
@@ -172,14 +128,11 @@ class _ChatPageState extends State<ChatPage> {
         });
   }
 
-  //build message item
   Widget _buildMessageItem(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-    //is current user
     bool isCurrentUser = data['senderID'] == _authService.getCurrentUser()!.uid;
 
-    // align message to the right if sender is the current user .otherwise left
     var alignment =
         isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
     return Container(
@@ -194,13 +147,11 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  //build message input
   Widget _buildUserInput() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 50.0),
       child: Row(
         children: [
-          //textfield should take up most of the space
           Expanded(
             child: MyTextField(
               controller: _messageController,
@@ -209,8 +160,6 @@ class _ChatPageState extends State<ChatPage> {
               focusNode: myFocusNode,
             ),
           ),
-          //sendbutton
-
           Container(
             decoration: BoxDecoration(
               color: Colors.green,

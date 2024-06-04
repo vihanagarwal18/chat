@@ -1,4 +1,5 @@
 import 'package:chat/auth/auth_service.dart';
+import 'package:chat/components/components.dart';
 import 'package:chat/components/my_drawer.dart';
 import 'package:chat/services/chat_services/chatservice.dart';
 import 'package:flutter/material.dart';
@@ -13,13 +14,16 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  //chat and auth service
   final ChatService _chatService = ChatService();
   final AuthService _authService = AuthService();
+  String _searchQuery = '';
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
           "Lenk",
@@ -35,22 +39,58 @@ class _HomepageState extends State<Homepage> {
       ),
       drawer: MyDrawer(),
       body: SafeArea(
-
-        child: _buildUserList(),
-        // child: LayoutBuilder(
-        //   builder: (context, constraints) {
-        //     double containerWidth = constraints.maxWidth > 600
-        //         ? constraints.maxWidth * 0.8
-        //         : constraints.maxWidth * 0.95;
-        //
-        //     return Center(
-        //       child: Container(
-        //         width: containerWidth,
-        //         child: _buildUserList(),
-        //       ),
-        //     );
-        //   },
-        // ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search...',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: () async {
+                      var user =
+                          await _chatService.getUserByEmail(_searchQuery);
+                      if (user != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(
+                              receiverEmail: user['email'],
+                              receiverID: user['uid'],
+                            ),
+                          ),
+                        ).then((_) {
+                          // Clear the search query and refresh the state when returning from ChatPage
+                          setState(() {
+                            _searchQuery = '';
+                            _searchController.clear();
+                          });
+                        });
+                      } else {
+                        showSnackBar(context, "Email not found", Colors.red);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: _buildUserList()),
+          ],
+        ),
       ),
     );
   }
@@ -69,9 +109,15 @@ class _HomepageState extends State<Homepage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text("loading....");
         }
-        //return list view
+
+        var users = snapshot.data!
+            .where((userData) =>
+                userData["email"] != _authService.getCurrentUser()!.email)
+            .where((userData) => userData["email"].contains(_searchQuery))
+            .toList();
+
         return ListView(
-          children: snapshot.data!
+          children: users
               .map<Widget>((userData) => _buildUserListItem(userData, context))
               .toList(),
         );
@@ -81,32 +127,37 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildUserListItem(
       Map<String, dynamic> userData, BuildContext context) {
-    print("no of users are ${userData.length}");
-    print(userData);
-    //display all users
-    if (userData["email"] != _authService.getCurrentUser()!.email) {
-      return UserTile(
-        text: userData["email"],
-        onTap: () {
-          //tapped on a user to got to chat page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatPage(
-                receiverEmail: userData["email"],
-                receiverID: userData["uid"],
-              ),
-            ),
+    return FutureBuilder(
+      future: _chatService.hasMessages(userData["uid"]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container();
+        }
+        if (snapshot.hasData && snapshot.data == true) {
+          return UserTile(
+            text: userData["email"],
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatPage(
+                    receiverEmail: userData["email"],
+                    receiverID: userData["uid"],
+                  ),
+                ),
+              ).then((_) {
+                // Clear the search query and refresh the state when returning from ChatPage
+                setState(() {
+                  _searchQuery = '';
+                  _searchController.clear();
+                });
+              });
+            },
           );
-        },
-      );
-    } else {
-      return Container(
-        color: Colors.green,
-      );
-    }
+        } else {
+          return Container();
+        }
+      },
+    );
   }
 }
-
-
-//users which are stored in firebase store will only be displayed here
