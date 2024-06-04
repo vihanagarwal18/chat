@@ -30,89 +30,101 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
-            child: Container(
-              width: MediaQuery.of(context).size.width * .5,
-              height: MediaQuery.of(context).size.height * .667,
-              decoration: BoxDecoration(
-                  border: Border.all(),
-                  borderRadius: BorderRadius.circular(20)),
-              padding: EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Mobile Number Input
-                  TextField(
-                    controller: mailregisterController,
-                    //keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: 'Enter Your Email ID',
-                    ),
+            padding: const EdgeInsets.all(20.0),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                double containerWidth = constraints.maxWidth > 600
+                    ? constraints.maxWidth * 0.5
+                    : constraints.maxWidth * 0.9;
+                double containerHeight = constraints.maxHeight > 800
+                    ? constraints.maxHeight * 0.667
+                    : constraints.maxHeight * 0.8;
+
+                return Container(
+                  width: containerWidth,
+                  height: containerHeight,
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  SizedBox(height: 20.0),
-                  // password Input
-                  Row(
+                  padding: EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: TextField(
-                          maxLength: 20,
-                          controller: passController,
-                          obscureText: showpassword,
-                          decoration: InputDecoration(
-                            labelText: 'Enter Password',
-                          ),
+                      // Mobile Number Input
+                      TextField(
+                        controller: mailregisterController,
+                        //keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: 'Enter Your Email ID',
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            showpassword = !showpassword;
-                          });
-                        },
-                        icon: Icon(Icons.remove_red_eye_rounded),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          maxLength: 20,
-                          obscureText: confirmpassword,
-                          controller: confirmpassController,
-                          decoration: InputDecoration(
-                            labelText: 'Confirm Password',
+                      SizedBox(height: 20.0),
+                      // password Input
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              maxLength: 20,
+                              controller: passController,
+                              obscureText: showpassword,
+                              decoration: InputDecoration(
+                                labelText: 'Enter Password',
+                              ),
+                            ),
                           ),
-                        ),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                showpassword = !showpassword;
+                              });
+                            },
+                            icon: Icon(Icons.remove_red_eye_rounded),
+                          ),
+                        ],
                       ),
-                      IconButton(
+                      SizedBox(height: 20.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              maxLength: 20,
+                              obscureText: confirmpassword,
+                              controller: confirmpassController,
+                              decoration: InputDecoration(
+                                labelText: 'Confirm Password',
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                confirmpassword = !confirmpassword;
+                              });
+                            },
+                            icon: Icon(Icons.remove_red_eye_rounded),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20.0),
+                      ElevatedButton(
                         onPressed: () {
-                          setState(() {
-                            confirmpassword = !confirmpassword;
-                          });
+                          submit_register();
+                          //verifyOTP();
                         },
-                        icon: Icon(Icons.remove_red_eye_rounded),
+                        child: Text('Submit'),
                       ),
+                      SizedBox(height: 20.0),
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, '/AuthGate', (_) => false);
+                          },
+                          child: Text('Go to Login Page')),
                     ],
                   ),
-                  SizedBox(height: 20.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      submit_register();
-                      //verifyOTP();
-                    },
-                    child: Text('Submit'),
-                  ),
-                  SizedBox(height: 20.0),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, '/AuthGate', (_) => false);
-                      },
-                      child: Text('Go to Login Page')),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ),
