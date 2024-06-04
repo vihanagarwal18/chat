@@ -62,9 +62,14 @@ class _ChatPageState extends State<ChatPage> {
           Duration(milliseconds: 500),
             ()=>scrollDown(),
         );
-
       }
     });
+
+    //wait a bit for listview to be built,then scroll to bottom
+    Future.delayed(
+      Duration(milliseconds: 500),
+        () =>scrollDown(),
+    );
   }
 
   @override
@@ -93,6 +98,7 @@ class _ChatPageState extends State<ChatPage> {
       //clear text controller after sending the message
       _messageController.clear();
     }
+    scrollDown();
   }
 
   @override
