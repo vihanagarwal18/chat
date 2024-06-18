@@ -1,5 +1,5 @@
 import altimage from "../assets/hero/alternateImage.jpg"
-import lenkSen from "./lenkSen.svg";
+import lenkSen from "./lenkSen_1.svg";
 import check from "./check.svg";
 import lenkSenSymbol from "./lenkSen-symbol.svg";
 import lenkSenWhiteSymbol from "./lenkSen-symbol-white.svg";
