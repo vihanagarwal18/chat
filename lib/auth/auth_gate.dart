@@ -19,12 +19,12 @@ class _AuthGateState extends State<AuthGate> {
         builder: (context, snapshot) {
           //user is logged in
           if (snapshot.hasData) {
-            print('logged in');
+            // print('logged in');
             return Homepage();
           }
           //user if logged out
           else {
-            print("logged out");
+            // print("logged out");
             //Navigator.pushNamedAndRemoveUntil(context, 'LoginRoute', (_) => false,);
             return LoginPage();
           }

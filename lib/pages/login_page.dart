@@ -1,12 +1,11 @@
 import 'package:chat/components/components.dart';
+import 'package:chat/constants/contants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-//import 'homepage.dart';
 import 'package:chat/auth/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
-
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -14,10 +13,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController mailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  bool showpassword = false;
+  bool showpassword = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: lenk_bg,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -35,74 +36,169 @@ class _LoginPageState extends State<LoginPage> {
                   width: containerWidth,
                   height: containerHeight,
                   decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(20)),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
                   padding: EdgeInsets.all(20.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TextField(
-                        controller: mailController,
-                        //keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: 'Enter Your Email ID',
+                      // Logo
+                      Image.asset(
+                        'assets/logo.png', 
+                        height: 50,
+                      ),
+                      SizedBox(height: 20.0),
+                      // Welcome Text
+                      Text(
+                        'Welcome back',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10.0),
+                      Text(
+                        'Glad to see you again 👋\nLogin to your account below',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
                         ),
                       ),
                       SizedBox(height: 20.0),
-                      // Password Input
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              maxLength: 20,
-                              obscureText: showpassword,
-                              //obscuringCharacter: '\$',
-                              controller: passwordController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Enter Password',
-                              ),
+                      // Google Sign-In Button
+                      // ElevatedButton.icon(
+                      //   onPressed: () {
+                      //     // Implement Google Sign-In
+                      //   },
+                      //   icon: Icon(Icons.login, color: Colors.red),
+                      //   label: Text('Continue with Google'),
+                      //   style: ElevatedButton.styleFrom(
+                      //     backgroundColor: Colors.white,
+                      //     foregroundColor: Colors.black,
+                      //     side: BorderSide(color: Colors.grey.shade300),
+                      //     padding: EdgeInsets.symmetric(vertical: 15),
+                      //     textStyle: TextStyle(fontSize: 16),
+                      //   ),
+                      // ),
+                      // SizedBox(height: 20.0),
+                      // Email TextField
+                     TextField(
+                        controller: mailController,
+                        decoration: InputDecoration(
+                          hintText: 'enter email...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
                             ),
                           ),
-                          IconButton(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20.0),
+                      // Password TextField
+                      TextField(
+                        controller: passwordController,
+                        obscureText: showpassword,
+                        decoration: InputDecoration(
+                          hintText: 'enter password...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              color: Colors.grey.shade500,
+                              showpassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
                             onPressed: () {
                               setState(() {
                                 showpassword = !showpassword;
                               });
                             },
-                            icon: Icon(Icons.remove_red_eye_rounded),
                           ),
-                        ],
+                        ),
                       ),
                       SizedBox(height: 20.0),
-
-                      // Verify OTP Button
-                      ElevatedButton(
-                        onPressed: () {
-                          submit_login();
-                        },
-                        child: Text('Submit'),
+                      // Login Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 40,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            submit_login();
+                          },
+                          child: Text('Login'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: lenk_purple,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            textStyle: TextStyle(fontSize: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                        ),
                       ),
                       SizedBox(height: 20.0),
-                      ElevatedButton(
+                      // Registration Link
+                      TextButton(
                         onPressed: () {
-                          //Navigator.of(context).pop();
                           Navigator.pushNamedAndRemoveUntil(
                             context,
                             '/RegisterRoute',
                             (_) => false,
                           );
                         },
-                        child: Text('For Registeration'),
-                      ),
-                      SizedBox(height: 20.0),
-                      // foregt password
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/ForgetPassword', (_) => false);
-                        },
-                        child: Text('Forgot Password'),
+                        child: Text.rich(
+                          TextSpan(
+                            text: "Don't have an account? ",
+                            children: [
+                              TextSpan(
+                                text: 'Sign up for Free',
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -143,7 +239,6 @@ class _LoginPageState extends State<LoginPage> {
             showSnackBar(
                 context, "Please do the verification first", Colors.red);
             authService.signOut();
-            //logOut();
           }
         }
       } on FirebaseAuthException catch (e) {
@@ -161,9 +256,4 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
-
-  // void logOut() async {
-  //   final _auth = AuthService();
-  //   await _auth.signOut();
-  // }
 }

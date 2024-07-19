@@ -1,6 +1,7 @@
 import 'package:chat/auth/auth_service.dart';
 import 'package:chat/components/components.dart';
 import 'package:chat/components/my_drawer.dart';
+import 'package:chat/constants/contants.dart';
 import 'package:chat/services/chat_services/chatservice.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/components/user_tile.dart';
@@ -24,6 +25,7 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: lenk_bg, // Match background color
       appBar: AppBar(
         title: Text(
           "Lenk",
@@ -35,61 +37,82 @@ class _HomepageState extends State<Homepage> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        foregroundColor: Colors.grey, // arrow vagra ka colour
+        foregroundColor: Colors.grey,
       ),
       drawer: MyDrawer(),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search...',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: () async {
-                      var user =
-                          await _chatService.getUserByEmail(_searchQuery);
-                      if (user != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatPage(
-                              receiverEmail: user['email'],
-                              receiverID: user['uid'],
+        child: Padding(
+          padding: const EdgeInsets.all(20.0), // Consistent padding
+          child: Column(
+            children: [
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade500,
                             ),
                           ),
-                        ).then((_) {
-                          // Clear the search query and refresh the state when returning from ChatPage
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ),
+                        onChanged: (value) {
                           setState(() {
-                            _searchQuery = '';
-                            _searchController.clear();
+                            _searchQuery = value;
                           });
-                        });
-                      } else {
-                        showSnackBar(context, "Email not found", Colors.red);
-                      }
-                    },
-                  ),
-                ],
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () async {
+                        var user =
+                            await _chatService.getUserByEmail(_searchQuery);
+                        if (user != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                receiverEmail: user['email'],
+                                receiverID: user['uid'],
+                              ),
+                            ),
+                          ).then((_) {
+                            // Clear the search query and refresh the state when returning from ChatPage
+                            setState(() {
+                              _searchQuery = '';
+                              _searchController.clear();
+                            });
+                          });
+                        } else {
+                          showSnackBar(context, "Email not found", Colors.red);
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(child: _buildUserList()),
-          ],
+              Expanded(child: _buildUserList()),
+            ],
+          ),
         ),
       ),
     );

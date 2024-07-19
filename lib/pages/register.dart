@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:chat/components/components.dart';
+import 'package:chat/constants/contants.dart';
 import 'package:flutter/material.dart';
 import 'package:chat/auth/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,6 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: lenk_bg, // Match background color
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -44,83 +46,196 @@ class _RegisterPageState extends State<RegisterPage> {
                   width: containerWidth,
                   height: containerHeight,
                   decoration: BoxDecoration(
-                    border: Border.all(),
+                    color: Colors.white, // Match container color
+                    border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
                   ),
                   padding: EdgeInsets.all(20.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Mobile Number Input
-                      TextField(
-                        controller: mailregisterController,
-                        //keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: 'Enter Your Email ID',
+                      // Logo
+                      Image.asset(
+                        'assets/logo.png',
+                        height: 50,
+                      ),
+                      SizedBox(height: 20.0),
+                      // Welcome Text
+                      Text(
+                        'Create an Account',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10.0),
+                      Text(
+                        'Join us and start chatting!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
                         ),
                       ),
                       SizedBox(height: 20.0),
-                      // password Input
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              maxLength: 20,
-                              controller: passController,
-                              obscureText: showpassword,
-                              decoration: InputDecoration(
-                                labelText: 'Enter Password',
-                              ),
+                      // Email TextField
+                      TextField(
+                        controller: mailregisterController,
+                        decoration: InputDecoration(
+                          hintText: 'Enter Your Email ID',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
                             ),
                           ),
-                          IconButton(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20.0),
+                      // Password TextField
+                      TextField(
+                        maxLength: 20,
+                        controller: passController,
+                        obscureText: showpassword,
+                        decoration: InputDecoration(
+                          hintText: 'Enter Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                          suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
                                 showpassword = !showpassword;
                               });
                             },
-                            icon: Icon(Icons.remove_red_eye_rounded),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20.0),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              maxLength: 20,
-                              obscureText: confirmpassword,
-                              controller: confirmpassController,
-                              decoration: InputDecoration(
-                                labelText: 'Confirm Password',
-                              ),
+                            icon: Icon(
+                              showpassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.grey.shade500,
                             ),
                           ),
-                          IconButton(
+                        ),
+                      ),
+                      SizedBox(height: 20.0),
+                      // Confirm Password TextField
+                      TextField(
+                        maxLength: 20,
+                        obscureText: confirmpassword,
+                        controller: confirmpassController,
+                        decoration: InputDecoration(
+                          hintText: 'Confirm Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                          suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
                                 confirmpassword = !confirmpassword;
                               });
                             },
-                            icon: Icon(Icons.remove_red_eye_rounded),
+                            icon: Icon(
+                              confirmpassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.grey.shade500,
+                            ),
                           ),
-                        ],
+                        ),
                       ),
                       SizedBox(height: 20.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          submit_register();
-                          //verifyOTP();
-                        },
-                        child: Text('Submit'),
-                      ),
-                      SizedBox(height: 20.0),
-                      ElevatedButton(
+                      // Submit Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 40,
+                        child: ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, '/AuthGate', (_) => false);
+                            submit_register();
                           },
-                          child: Text('Go to Login Page')),
+                          child: Text('Submit'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: lenk_purple,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            textStyle: TextStyle(fontSize: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20.0),
+                      // Login Link
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/AuthGate',
+                            (_) => false,
+                          );
+                        },
+                        child: Text.rich(
+                          TextSpan(
+                            text: "Already have an account? ",
+                            children: [
+                              TextSpan(
+                                text: 'Login',
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -144,12 +259,6 @@ class _RegisterPageState extends State<RegisterPage> {
     } else {
       final _auth = AuthService();
       try {
-        //  final userCredential = await FirebaseAuth.instance
-        //                         .signInWithEmailAndPassword(
-        //                       email: mail,
-        //                       password: pass,
-        //                     );
-        //                     print(userCredential.toString());
         User user = await _auth.signUpWithEmailPassword(mail, pass);
         if (user != null) {
           await user.sendEmailVerification();

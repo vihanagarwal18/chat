@@ -29,25 +29,22 @@ class MyTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: TextField(
-        obscureText: obscureText,
-        controller: controller,
-        focusNode: focusNode,
-        decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color:Theme.of(context).colorScheme.primary),
-            ),
-          fillColor: Theme.of(context).colorScheme.secondary,
-          filled: true,
-          hintText:hinttext,
-          hintStyle: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-          ),
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        hintText: hinttext,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: Colors.grey.shade500),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: Colors.grey.shade500),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: Colors.grey.shade500),
         ),
       ),
     );
@@ -70,9 +67,10 @@ class ChatBubble extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: isCurrentUser ? (isDarkMode ? Colors.green.shade600 : Colors.green.shade500): (isDarkMode ? Colors.grey.shade900 : Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(15), // Rounded corners
       ),
       padding: EdgeInsets.all(16),
-      margin: EdgeInsets.symmetric(vertical: 2.5,horizontal: 25),
+      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
       child: Text(
         message,
         style: TextStyle(
@@ -82,6 +80,3 @@ class ChatBubble extends StatelessWidget {
     );
   }
 }
-
-
-
