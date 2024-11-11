@@ -1,3 +1,3 @@
 # lenk chat
 
-This project is made by Santanu Layek, Gauransh Sharma, Vihan Agarwal and Adhiraj Chauhan
+This project is made by Santanu Layek, Gauransh Sharma, Vihan Agarwal
