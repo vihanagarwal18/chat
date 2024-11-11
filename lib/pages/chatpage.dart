@@ -53,7 +53,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void _initGemini() {
     _geminiModel =
-        GoogleGemini(apiKey: 'AIzaSyCKRTkyTQ342AIW1pcXcQZ82_d7W60S_UU'); // Replace with your actual API key
+        GoogleGemini(apiKey: ''); // Replace with your actual API key
   }
 
   Future<String> _analyzeSentiment(String message) async {
