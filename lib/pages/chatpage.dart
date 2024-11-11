@@ -30,13 +30,8 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _scrollController = ScrollController();
   late final GoogleGemini _geminiModel;
 
-  // Map to store sentiment results for each message by message ID
   final Map<String, String> _messageSentiments = {};
-
-  // List to store the last 10 messages (both sender and receiver) for context-aware suggestions
   final List<Map<String, dynamic>> _lastMessages = [];
-
-  // State variable to track if the last message was from the receiver
   bool _isLastMessageFromReceiver = false;
 
   @override
@@ -53,7 +48,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void _initGemini() {
     _geminiModel =
-        GoogleGemini(apiKey: 'AIzaSyCKRTkyTQ342AIW1pcXcQZ82_d7W60S_UU'); // Replace with your actual API key
+        GoogleGemini(apiKey: '');
   }
 
   Future<String> _analyzeSentiment(String message) async {
@@ -68,30 +63,24 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  // Method to generate response suggestions
   Future<List<String>> _generateSuggestions() async {
     if (_lastMessages.isEmpty) return ["Could you clarify?"];
 
-    // Construct the conversation history
     String conversation = _lastMessages.map((msg) {
       String sender = msg['sender'] == _authService.getCurrentUser()!.uid ? "You" : widget.receiverEmail;
       return "$sender: ${msg['message']}";
     }).join("\n");
 
-    // Create a prompt for the AI model
     String prompt = "$conversation\nYou should say:";
 
     try {
-      // Get suggestions from the Gemini API
       final response = await _geminiModel.generateFromText(prompt);
-      // Assuming Gemini returns multiple suggestions separated by newlines
       List<String> suggestions = response.text
           .split('\n')
           .map((s) => s.trim())
           .where((s) => s.isNotEmpty)
           .toList();
 
-      // Limit to a maximum of 5 suggestions
       if (suggestions.length > 5) {
         suggestions = suggestions.sublist(0, 5);
       }
@@ -99,7 +88,7 @@ class _ChatPageState extends State<ChatPage> {
       return suggestions;
     } catch (e) {
       print('Error generating suggestions: $e');
-      return ["Could you clarify?"]; // Fallback suggestion
+      return ["Could you clarify?"];
     }
   }
 
@@ -185,7 +174,6 @@ class _ChatPageState extends State<ChatPage> {
 
         final messages = snapshot.data!.docs;
 
-        // Update the _lastMessages list with the latest messages
         for (var doc in messages) {
           Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
           String message = data["message"];
@@ -201,7 +189,6 @@ class _ChatPageState extends State<ChatPage> {
           }
         }
 
-        // Determine if the last message was from the receiver
         if (messages.isNotEmpty) {
           Map<String, dynamic> lastMessage = (messages.last.data() as Map<String, dynamic>);
           bool lastFromReceiver = lastMessage['senderID'] != senderID;
@@ -215,7 +202,6 @@ class _ChatPageState extends State<ChatPage> {
           }
         }
 
-        // Scroll to bottom after receiving new messages
         WidgetsBinding.instance.addPostFrameCallback((_) => scrollDown());
 
         return ListView(
@@ -230,35 +216,28 @@ class _ChatPageState extends State<ChatPage> {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     bool isCurrentUser = data['senderID'] == _authService.getCurrentUser()!.uid;
     String message = data["message"];
-    String messageId = doc.id; // Unique ID for each message
+    String messageId = doc.id;
 
-    // Format the timestamp to display only date and time
     String formattedTimestamp = DateFormat('yyyy-MM-dd HH:mm').format(data['timestamp'].toDate());
 
     return GestureDetector(
       onTap: () async {
-        // Check if sentiment for this message is already analyzed
         if (_messageSentiments.containsKey(messageId)) {
-          // Display existing sentiment
           _showSentimentDialog(message, _messageSentiments[messageId]!);
         } else {
-          // Show loading indicator
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (context) => Center(child: CircularProgressIndicator()),
           );
 
-          // Analyze sentiment
           String sentiment = await _analyzeSentiment(message);
           setState(() {
             _messageSentiments[messageId] = sentiment;
           });
 
-          // Dismiss loading indicator
           Navigator.of(context).pop();
 
-          // Show sentiment dialog
           _showSentimentDialog(message, sentiment);
         }
       },
@@ -273,7 +252,6 @@ class _ChatPageState extends State<ChatPage> {
               backgroundColor: isCurrentUser ? Colors.blue[50] : Colors.grey[200],
               timestamp: formattedTimestamp,
             ),
-            // Optional: Display a small sentiment icon if analyzed
             if (_messageSentiments.containsKey(messageId))
               Positioned(
                 bottom: 0,
@@ -291,7 +269,6 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  // Helper method to get sentiment icon
   IconData _getSentimentIcon(String sentiment) {
     switch (sentiment) {
       case 'positive':
@@ -304,7 +281,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  // Helper method to get sentiment color
   Color _getSentimentColor(String sentiment) {
     switch (sentiment) {
       case 'positive':
@@ -317,7 +293,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  // Method to display sentiment in a dialog
   void _showSentimentDialog(String message, String sentiment) {
     String displaySentiment;
     IconData sentimentIcon;
@@ -370,13 +345,11 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  // Modify _buildUserInput to include response suggestions conditionally
   Widget _buildUserInput() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Display response suggestions only if the last message was from the receiver
           if (_isLastMessageFromReceiver)
             FutureBuilder<List<String>>(
               future: _generateSuggestions(),
@@ -406,7 +379,6 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           if (_isLastMessageFromReceiver) SizedBox(height: 8.0),
-          // Existing input field and send button
           Row(
             children: [
               Expanded(
