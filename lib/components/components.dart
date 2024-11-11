@@ -18,6 +18,8 @@ class MyTextField extends StatelessWidget {
   final bool obscureText;
   final TextEditingController controller;
   final FocusNode? focusNode;
+  final InputDecoration? decoration;
+  final Function(String)? onSubmitted;
 
   const MyTextField({
     super.key,
@@ -25,6 +27,8 @@ class MyTextField extends StatelessWidget {
     required this.obscureText,
     required this.controller,
     this.focusNode,
+    this.decoration,
+    this.onSubmitted,
   });
 
   @override
@@ -32,7 +36,9 @@ class MyTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       obscureText: obscureText,
-      decoration: InputDecoration(
+      focusNode: focusNode,
+      onSubmitted: onSubmitted,
+      decoration: decoration ?? InputDecoration(
         hintText: hinttext,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -54,28 +60,47 @@ class MyTextField extends StatelessWidget {
 class ChatBubble extends StatelessWidget {
   final String message;
   final bool isCurrentUser;
+  final Color? backgroundColor;
+  final String timestamp;
 
   const ChatBubble({
     super.key,
     required this.message,
     required this.isCurrentUser,
+    this.backgroundColor,
+    required this.timestamp,
   });
 
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode=Provider.of<ThemeProvider>(context,listen:false).isDarkMode;
+    bool isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
     return Container(
       decoration: BoxDecoration(
-        color: isCurrentUser ? (isDarkMode ? Colors.green.shade600 : Colors.green.shade500): (isDarkMode ? Colors.grey.shade900 : Colors.grey.shade200),
+        color: backgroundColor ?? (isCurrentUser
+            ? (isDarkMode ? Colors.green.shade600 : Colors.green.shade500)
+            : (isDarkMode ? Colors.grey.shade900 : Colors.grey.shade200)),
         borderRadius: BorderRadius.circular(15), // Rounded corners
       ),
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
-      child: Text(
-        message,
-        style: TextStyle(
-          color: isCurrentUser ? Colors.white : (isDarkMode ? Colors.white : Colors.black),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message,
+            style: TextStyle(
+              color: isCurrentUser ? const Color.fromARGB(255, 0, 0, 0) : (isDarkMode ? Colors.white : Colors.black),
+            ),
+          ),
+          SizedBox(height: 5),
+          Text(
+            timestamp,
+            style: TextStyle(
+              fontSize: 10,
+              color: isDarkMode ? Colors.white70 : Colors.black54,
+            ),
+          ),
+        ],
       ),
     );
   }
