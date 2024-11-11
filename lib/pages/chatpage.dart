@@ -32,6 +32,12 @@ class _ChatPageState extends State<ChatPage> {
   // Map to store sentiment results for each message by message ID
   final Map<String, String> _messageSentiments = {};
 
+  // List to store the last 10 messages (both sender and receiver) for context-aware suggestions
+  final List<Map<String, dynamic>> _lastMessages = [];
+
+  // State variable to track if the last message was from the receiver
+  bool _isLastMessageFromReceiver = false;
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +67,41 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  // Method to generate response suggestions
+  Future<List<String>> _generateSuggestions() async {
+    if (_lastMessages.isEmpty) return ["Could you clarify?"];
+
+    // Construct the conversation history
+    String conversation = _lastMessages.map((msg) {
+      String sender = msg['sender'] == _authService.getCurrentUser()!.uid ? "You" : widget.receiverEmail;
+      return "$sender: ${msg['message']}";
+    }).join("\n");
+
+    // Create a prompt for the AI model
+    String prompt = "$conversation\nYou should say:";
+
+    try {
+      // Get suggestions from the Gemini API
+      final response = await _geminiModel.generateFromText(prompt);
+      // Assuming Gemini returns multiple suggestions separated by newlines
+      List<String> suggestions = response.text
+          .split('\n')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+
+      // Limit to a maximum of 5 suggestions
+      if (suggestions.length > 5) {
+        suggestions = suggestions.sublist(0, 5);
+      }
+
+      return suggestions;
+    } catch (e) {
+      print('Error generating suggestions: $e');
+      return ["Could you clarify?"]; // Fallback suggestion
+    }
+  }
+
   @override
   void dispose() {
     myFocusNode.dispose();
@@ -79,9 +120,21 @@ class _ChatPageState extends State<ChatPage> {
   Future<void> sendMessage() async {
     if (_messageController.text.isNotEmpty) {
       await _chatService.sendMessage(widget.receiverID, _messageController.text);
+      // Add the sent message to the _lastMessages list
+      setState(() {
+        _lastMessages.add({
+          'sender': _authService.getCurrentUser()!.uid,
+          'message': _messageController.text,
+        });
+        if (_lastMessages.length > 10) {
+          _lastMessages.removeAt(0);
+        }
+        // Since the user sent a message, the last message is not from the receiver
+        _isLastMessageFromReceiver = false;
+      });
       _messageController.clear();
+      scrollDown();
     }
-    scrollDown();
   }
 
   @override
@@ -128,11 +181,42 @@ class _ChatPageState extends State<ChatPage> {
           return Center(child: CircularProgressIndicator());
         }
 
+        final messages = snapshot.data!.docs;
+
+        // Update the _lastMessages list with the latest messages
+        for (var doc in messages) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          String message = data["message"];
+          String messageSenderID = data["senderID"];
+
+          _lastMessages.add({
+            'sender': messageSenderID,
+            'message': message,
+          });
+
+          if (_lastMessages.length > 10) {
+            _lastMessages.removeAt(0);
+          }
+        }
+
+        // Determine if the last message was from the receiver
+        if (messages.isNotEmpty) {
+          Map<String, dynamic> lastMessage = (messages.last.data() as Map<String, dynamic>);
+          bool lastFromReceiver = lastMessage['senderID'] != senderID;
+          
+          // Avoid calling setState if there's no change
+          if (lastFromReceiver != _isLastMessageFromReceiver) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              setState(() {
+                _isLastMessageFromReceiver = lastFromReceiver;
+              });
+            });
+          }
+        }
+
         return ListView(
           controller: _scrollController,
-          children: snapshot.data!.docs
-              .map((doc) => _buildMessageItem(doc))
-              .toList(),
+          children: messages.map((doc) => _buildMessageItem(doc)).toList(),
         );
       },
     );
@@ -277,25 +361,62 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  // Modify _buildUserInput to include response suggestions conditionally
   Widget _buildUserInput() {
     return Padding(
       padding:
           const EdgeInsets.only(bottom: 20.0, left: 20.0, right: 20.0),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: MyTextField(
-              controller: _messageController,
-              hinttext: "Type a message",
-              obscureText: false,
-              focusNode: myFocusNode,
+          // Display response suggestions only if the last message was from the receiver
+          if (_isLastMessageFromReceiver)
+            FutureBuilder<List<String>>(
+              future: _generateSuggestions(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return SizedBox.shrink();
+
+                return Container(
+                  height: 40.0,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: snapshot.data!.map((suggestion) {
+                      return Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 4.0),
+                        child: ActionChip(
+                          label: Text(suggestion),
+                          onPressed: () {
+                            setState(() {
+                              _messageController.text = suggestion;
+                            });
+                            myFocusNode.requestFocus();
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
             ),
-          ),
-          IconButton(
-            onPressed: () async {
-              await sendMessage();
-            },
-            icon: Icon(Icons.arrow_upward, color: Colors.green),
+          if (_isLastMessageFromReceiver) SizedBox(height: 8.0),
+          // Existing input field and send button
+          Row(
+            children: [
+              Expanded(
+                child: MyTextField(
+                  controller: _messageController,
+                  hinttext: "Type a message",
+                  obscureText: false,
+                  focusNode: myFocusNode,
+                ),
+              ),
+              IconButton(
+                onPressed: () async {
+                  await sendMessage();
+                },
+                icon: Icon(Icons.arrow_upward, color: Colors.green),
+              ),
+            ],
           ),
         ],
       ),
