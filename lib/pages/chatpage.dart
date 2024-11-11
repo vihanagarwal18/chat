@@ -4,8 +4,7 @@ import 'package:chat/constants/contants.dart';
 import 'package:chat/services/chat_services/chatservice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:google_gemini/google_gemini.dart';
 
 class ChatPage extends StatefulWidget {
   final String receiverEmail;
@@ -26,92 +25,35 @@ class _ChatPageState extends State<ChatPage> {
   final AuthService _authService = AuthService();
   FocusNode myFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
-
-  String _sentiment = '';
-  String _insight = '';
-
-  // Function to get sentiment analysis
-  Future<void> getSentimentAnalysis(String message) async {
-    print("Sending message to sentiment analysis API");
-    final response = await http.post(
-      Uri.parse(
-          'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=apikey'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "contents": [
-          {
-            "parts": [
-              {"text": message}
-            ]
-          }
-        ]
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      // Assuming the response contains a sentiment field
-      setState(() {
-        _sentiment = data['sentiment'] ?? 'Unknown';
-      });
-    } else {
-      setState(() {
-        _sentiment = 'Error fetching sentiment';
-      });
-    }
-  }
-
-  // Function to get AI insight
-  Future<void> getAIInsight(String message) async {
-    final url = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=apikey',
-    );
-
-    final headers = {
-      'Content-Type': 'application/json',
-    };
-
-    final body = jsonEncode({
-      "contents": [
-        {
-          "parts": [
-            {"text": message}
-          ]
-        }
-      ]
-    });
-
-    final response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      print(data); // Log the response for debugging
-    } else {
-      print("dfdsf");
-      print('Error: ${response.statusCode}');
-      print('Response body: ${response.body}');
-    }
-  }
-
-  // Function to collect the last 10 messages
-  List<String> getLastMessages(QuerySnapshot snapshot) {
-    return snapshot.docs
-        .map((doc) => (doc.data() as Map<String, dynamic>)['message'] as String)
-        .toList()
-        .reversed
-        .take(10)
-        .toList();
-  }
+  late final GoogleGemini _geminiModel;
+  Map<String, String> _messageSentiments = {};
 
   @override
   void initState() {
     super.initState();
+    _initGemini();
     myFocusNode.addListener(() {
       if (myFocusNode.hasFocus) {
         Future.delayed(Duration(milliseconds: 500), () => scrollDown());
       }
     });
     Future.delayed(Duration(milliseconds: 500), () => scrollDown());
+  }
+
+  void _initGemini() {
+    _geminiModel =
+        GoogleGemini(apiKey: 'AIzaSyCKRTkyTQ342AIW1pcXcQZ82_d7W60S_UU');
+  }
+
+  Future<String> _analyzeSentiment(String message) async {
+    try {
+      final response = await _geminiModel.generateFromText(
+          'Analyze the sentiment of this message and respond with exactly one word (positive, negative, or neutral): "$message"');
+      return response.text.toLowerCase().trim();
+    } catch (e) {
+      print('Error analyzing sentiment: $e');
+      return 'neutral';
+    }
   }
 
   @override
@@ -194,59 +136,57 @@ class _ChatPageState extends State<ChatPage> {
   Widget _buildMessageItem(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     bool isCurrentUser = data['senderID'] == _authService.getCurrentUser()!.uid;
+    String message = data["message"];
+    String messageId = doc.id;
+
+    if (!isCurrentUser && !_messageSentiments.containsKey(messageId)) {
+      _analyzeSentiment(message).then((sentiment) {
+        setState(() {
+          _messageSentiments[messageId] = sentiment;
+        });
+      });
+    }
 
     return Container(
       alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: ChatBubble(message: data["message"], isCurrentUser: isCurrentUser),
+      child: Column(
+        crossAxisAlignment:
+            isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          ChatBubble(
+            message: message,
+            isCurrentUser: isCurrentUser,
+          ),
+          if (!isCurrentUser && _messageSentiments.containsKey(messageId))
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, top: 4.0),
+              child: Text(
+                'Sentiment: ${_messageSentiments[messageId]}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: _getSentimentColor(_messageSentiments[messageId]!),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
-  Future<void> getSentimentOfLastMessage(QuerySnapshot snapshot) async {
-    // Get the last message
-    String lastMessage = (snapshot.docs.last.data()
-        as Map<String, dynamic>)['message'] as String;
-
-    final response = await http.post(
-      Uri.parse(
-          'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=apikey'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "contents": [
-          {
-            "parts": [
-              {"text": lastMessage}
-            ]
-          }
-        ]
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      // Assuming the response contains a sentiment field
-      setState(() {
-        _sentiment = data['sentiment'] ?? 'Unknown';
-      });
-    } else {
-      print('Error: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      setState(() {
-        _sentiment = 'Error fetching sentiment';
-      });
+  Color _getSentimentColor(String sentiment) {
+    switch (sentiment.toLowerCase()) {
+      case 'positive':
+        return Colors.green;
+      case 'negative':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
   Widget _buildUserInput() {
     return Column(
       children: [
-        if (_sentiment.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Sentiment: $_sentiment',
-              style: TextStyle(color: Colors.blue),
-            ),
-          ),
         Padding(
           padding: const EdgeInsets.only(bottom: 20.0, left: 20.0, right: 20.0),
           child: Row(
@@ -260,20 +200,14 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ),
               IconButton(
-                onPressed: () async {
-                  await getSentimentAnalysis(_messageController.text);
-                  sendMessage();
-                },
-                icon: Icon(Icons.arrow_upward, color: Colors.green),
+                onPressed: sendMessage,
+                icon: Icon(Icons.send, color: Colors.blue),
               ),
               IconButton(
                 onPressed: () async {
-                  // Assuming you have a way to access the current message snapshot
-                  QuerySnapshot snapshot = await _chatService
-                      .getMessages(
-                          widget.receiverID, _authService.getCurrentUser()!.uid)
-                      .first;
-                  await getSentimentOfLastMessage(snapshot);
+                  String sentiment =
+                      await _analyzeSentiment("hello how are you?");
+                  print("Sentiment: $sentiment"); // For testing
                 },
                 icon: Icon(Icons.lightbulb, color: Colors.yellow),
               ),
