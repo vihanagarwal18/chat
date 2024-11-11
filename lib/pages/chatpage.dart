@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_gemini/google_gemini.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class ChatPage extends StatefulWidget {
   final String receiverEmail;
@@ -110,17 +111,18 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void scrollDown() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: Duration(seconds: 1),
-      curve: Curves.fastOutSlowIn,
-    );
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   Future<void> sendMessage() async {
     if (_messageController.text.isNotEmpty) {
       await _chatService.sendMessage(widget.receiverID, _messageController.text);
-      // Add the sent message to the _lastMessages list
       setState(() {
         _lastMessages.add({
           'sender': _authService.getCurrentUser()!.uid,
@@ -129,23 +131,22 @@ class _ChatPageState extends State<ChatPage> {
         if (_lastMessages.length > 10) {
           _lastMessages.removeAt(0);
         }
-        // Since the user sent a message, the last message is not from the receiver
         _isLastMessageFromReceiver = false;
       });
       _messageController.clear();
-      scrollDown();
+      WidgetsBinding.instance.addPostFrameCallback((_) => scrollDown());
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lenk_bg,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.receiverEmail),
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.grey,
-        elevation: 0.0,
+        title: Text(widget.receiverEmail, style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 1.0,
+        iconTheme: IconThemeData(color: Colors.black),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -159,6 +160,7 @@ class _ChatPageState extends State<ChatPage> {
               child: Column(
                 children: [
                   Expanded(child: _buildMessageList()),
+                  Divider(height: 1.0, color: Colors.grey[300]),
                   _buildUserInput(),
                 ],
               ),
@@ -204,7 +206,6 @@ class _ChatPageState extends State<ChatPage> {
           Map<String, dynamic> lastMessage = (messages.last.data() as Map<String, dynamic>);
           bool lastFromReceiver = lastMessage['senderID'] != senderID;
           
-          // Avoid calling setState if there's no change
           if (lastFromReceiver != _isLastMessageFromReceiver) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               setState(() {
@@ -213,6 +214,9 @@ class _ChatPageState extends State<ChatPage> {
             });
           }
         }
+
+        // Scroll to bottom after receiving new messages
+        WidgetsBinding.instance.addPostFrameCallback((_) => scrollDown());
 
         return ListView(
           controller: _scrollController,
@@ -227,6 +231,9 @@ class _ChatPageState extends State<ChatPage> {
     bool isCurrentUser = data['senderID'] == _authService.getCurrentUser()!.uid;
     String message = data["message"];
     String messageId = doc.id; // Unique ID for each message
+
+    // Format the timestamp to display only date and time
+    String formattedTimestamp = DateFormat('yyyy-MM-dd HH:mm').format(data['timestamp'].toDate());
 
     return GestureDetector(
       onTap: () async {
@@ -257,12 +264,14 @@ class _ChatPageState extends State<ChatPage> {
       },
       child: Container(
         alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
-        padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
         child: Stack(
           children: [
             ChatBubble(
               message: message,
               isCurrentUser: isCurrentUser,
+              backgroundColor: isCurrentUser ? Colors.blue[50] : Colors.grey[200],
+              timestamp: formattedTimestamp,
             ),
             // Optional: Display a small sentiment icon if analyzed
             if (_messageSentiments.containsKey(messageId))
@@ -364,8 +373,7 @@ class _ChatPageState extends State<ChatPage> {
   // Modify _buildUserInput to include response suggestions conditionally
   Widget _buildUserInput() {
     return Padding(
-      padding:
-          const EdgeInsets.only(bottom: 20.0, left: 20.0, right: 20.0),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
           // Display response suggestions only if the last message was from the receiver
@@ -381,8 +389,7 @@ class _ChatPageState extends State<ChatPage> {
                     scrollDirection: Axis.horizontal,
                     children: snapshot.data!.map((suggestion) {
                       return Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 4.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
                         child: ActionChip(
                           label: Text(suggestion),
                           onPressed: () {
@@ -408,13 +415,24 @@ class _ChatPageState extends State<ChatPage> {
                   hinttext: "Type a message",
                   obscureText: false,
                   focusNode: myFocusNode,
+                  onSubmitted: (value) async {
+                    await sendMessage();
+                  },
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
                 ),
               ),
               IconButton(
                 onPressed: () async {
                   await sendMessage();
                 },
-                icon: Icon(Icons.arrow_upward, color: Colors.green),
+                icon: Icon(Icons.send, color: Colors.blue),
               ),
             ],
           ),

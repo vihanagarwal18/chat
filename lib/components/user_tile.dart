@@ -12,7 +12,7 @@ class UserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("text of usertile is ${text}");
+    // print("text of usertile is ${text}");
     return GestureDetector(
       onTap: onTap,
       child: Container(
