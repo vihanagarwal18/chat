@@ -1,11 +1,11 @@
 import 'package:chat/auth/auth_service.dart';
 import 'package:chat/components/components.dart';
 import 'package:chat/components/my_drawer.dart';
+import 'package:chat/components/user_tile.dart';
 import 'package:chat/constants/contants.dart';
+import 'package:chat/pages/chatpage.dart';
 import 'package:chat/services/chat_services/chatservice.dart';
 import 'package:flutter/material.dart';
-import 'package:chat/components/user_tile.dart';
-import 'package:chat/pages/chatpage.dart';
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 class Homepage extends StatefulWidget {
@@ -136,7 +136,10 @@ class _HomepageState extends State<Homepage> {
         var users = snapshot.data!
             .where((userData) =>
                 userData["email"] != _authService.getCurrentUser()!.email)
-            .where((userData) => userData["email"].contains(_searchQuery))
+            .where((userData) => 
+                userData["email"] != null && 
+                _searchQuery != null &&
+                userData["email"].toString().toLowerCase().contains(_searchQuery.toLowerCase()))
             .toList();
 
         return ListView(

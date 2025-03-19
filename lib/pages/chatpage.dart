@@ -1,12 +1,9 @@
 import 'package:chat/auth/auth_service.dart';
 import 'package:chat/components/components.dart';
-import 'package:chat/constants/contants.dart';
 import 'package:chat/services/chat_services/chatservice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_gemini/google_gemini.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:intl/intl.dart';
 
 class ChatPage extends StatefulWidget {
@@ -28,7 +25,7 @@ class _ChatPageState extends State<ChatPage> {
   final AuthService _authService = AuthService();
   FocusNode myFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
-  late final GoogleGemini _geminiModel;
+  late final GenerativeModel _model;
 
   // Map to store sentiment results for each message by message ID
   final Map<String, String> _messageSentiments = {};
@@ -52,16 +49,19 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _initGemini() {
-    _geminiModel =
-        GoogleGemini(apiKey: ''); // Replace with your actual API key
+    _model = GenerativeModel(
+      model: 'gemini-2.0-flash',
+      apiKey: '', //api key
+    );
   }
 
   Future<String> _analyzeSentiment(String message) async {
     print("Analyzing sentiment: $message");
     try {
-      final response = await _geminiModel.generateFromText(
-          'Analyze the sentiment of this message and respond with exactly one word (positive, negative, or neutral): "$message"');
-      return response.text.toLowerCase().trim();
+      final prompt = 'Analyze the sentiment of this message and respond with exactly one word (positive, negative, or neutral): "$message"';
+      final content = [Content.text(prompt)];
+      final response = await _model.generateContent(content);
+      return response.text?.toLowerCase().trim() ?? 'neutral';
     } catch (e) {
       print('Error analyzing sentiment: $e');
       return 'neutral';
@@ -82,18 +82,17 @@ class _ChatPageState extends State<ChatPage> {
     String prompt = "$conversation\nYou should say:";
 
     try {
-      // Get suggestions from the Gemini API
-      final response = await _geminiModel.generateFromText(prompt);
-      // Assuming Gemini returns multiple suggestions separated by newlines
-      List<String> suggestions = response.text
-          .split('\n')
+      final content = [Content.text(prompt)];
+      final response = await _model.generateContent(content);
+      final suggestions = response.text
+          ?.split('\n')
           .map((s) => s.trim())
           .where((s) => s.isNotEmpty)
-          .toList();
+          .toList() ?? ["Could you clarify?"];
 
       // Limit to a maximum of 5 suggestions
       if (suggestions.length > 5) {
-        suggestions = suggestions.sublist(0, 5);
+        return suggestions.sublist(0, 5);
       }
 
       return suggestions;
