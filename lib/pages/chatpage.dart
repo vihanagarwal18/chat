@@ -25,7 +25,8 @@ class _ChatPageState extends State<ChatPage> {
   final AuthService _authService = AuthService();
   FocusNode myFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
-  late final GenerativeModel _model;
+  GenerativeModel? _model;
+  bool _isGeminiAvailable = false;
 
   // Map to store sentiment results for each message by message ID
   final Map<String, String> _messageSentiments = {};
@@ -49,18 +50,39 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _initGemini() {
-    _model = GenerativeModel(
-      model: 'gemini-2.0-flash',
-      apiKey: '', //api key
-    );
+    try {
+      // TODO: IMPORTANT - Add your Gemini API key here
+      // To get an API key:
+      // 1. Go to https://ai.google.dev/
+      // 2. Create or select a project
+      // 3. Get an API key
+      // 4. Replace the empty string below with your API key
+      const String apiKey = ''; 
+      
+      if (apiKey.isNotEmpty) {
+        _model = GenerativeModel(
+          model: 'gemini-2.0-flash',
+          apiKey: apiKey,
+        );
+        _isGeminiAvailable = true;
+      } else {
+        print('Warning: Gemini API key is not configured');
+        _isGeminiAvailable = false;
+      }
+    } catch (e) {
+      print('Error initializing Gemini: $e');
+      _isGeminiAvailable = false;
+    }
   }
 
   Future<String> _analyzeSentiment(String message) async {
+    if (!_isGeminiAvailable) return 'neutral';
+    
     print("Analyzing sentiment: $message");
     try {
       final prompt = 'Analyze the sentiment of this message and respond with exactly one word (positive, negative, or neutral): "$message"';
       final content = [Content.text(prompt)];
-      final response = await _model.generateContent(content);
+      final response = await _model!.generateContent(content);
       return response.text?.toLowerCase().trim() ?? 'neutral';
     } catch (e) {
       print('Error analyzing sentiment: $e');
@@ -70,20 +92,24 @@ class _ChatPageState extends State<ChatPage> {
 
   // Method to generate response suggestions
   Future<List<String>> _generateSuggestions() async {
+    if (!_isGeminiAvailable) {
+      return ["Hi", "How are you?", "Could you tell me more?", "Interesting!", "Thanks for sharing"];
+    }
+    
     if (_lastMessages.isEmpty) return ["Could you clarify?"];
-
-    // Construct the conversation history
-    String conversation = _lastMessages.map((msg) {
-      String sender = msg['sender'] == _authService.getCurrentUser()!.uid ? "You" : widget.receiverEmail;
-      return "$sender: ${msg['message']}";
-    }).join("\n");
-
-    // Create a prompt for the AI model
-    String prompt = "$conversation\nYou should say:";
-
+    
     try {
+      // Construct the conversation history
+      String conversation = _lastMessages.map((msg) {
+        String sender = msg['sender'] == _authService.getCurrentUser()!.uid ? "You" : widget.receiverEmail;
+        return "$sender: ${msg['message']}";
+      }).join("\n");
+
+      // Create a prompt for the AI model
+      String prompt = "$conversation\nYou should say:";
+
       final content = [Content.text(prompt)];
-      final response = await _model.generateContent(content);
+      final response = await _model!.generateContent(content);
       final suggestions = response.text
           ?.split('\n')
           .map((s) => s.trim())
@@ -98,7 +124,7 @@ class _ChatPageState extends State<ChatPage> {
       return suggestions;
     } catch (e) {
       print('Error generating suggestions: $e');
-      return ["Could you clarify?"]; // Fallback suggestion
+      return ["Hi", "How are you?", "Could you clarify?", "Interesting!", "Tell me more"]; // Fallback suggestions
     }
   }
 
@@ -235,7 +261,8 @@ class _ChatPageState extends State<ChatPage> {
     String formattedTimestamp = DateFormat('yyyy-MM-dd HH:mm').format(data['timestamp'].toDate());
 
     return GestureDetector(
-      onTap: () async {
+      // Only enable sentiment analysis if Gemini is available
+      onTap: _isGeminiAvailable ? () async {
         // Check if sentiment for this message is already analyzed
         if (_messageSentiments.containsKey(messageId)) {
           // Display existing sentiment
@@ -260,7 +287,7 @@ class _ChatPageState extends State<ChatPage> {
           // Show sentiment dialog
           _showSentimentDialog(message, sentiment);
         }
-      },
+      } : null,
       child: Container(
         alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
@@ -272,8 +299,8 @@ class _ChatPageState extends State<ChatPage> {
               backgroundColor: isCurrentUser ? Colors.blue[50] : Colors.grey[200],
               timestamp: formattedTimestamp,
             ),
-            // Optional: Display a small sentiment icon if analyzed
-            if (_messageSentiments.containsKey(messageId))
+            // Optional: Display a small sentiment icon if analyzed and Gemini is available
+            if (_isGeminiAvailable && _messageSentiments.containsKey(messageId))
               Positioned(
                 bottom: 0,
                 right: isCurrentUser ? 0 : null,
